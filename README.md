@@ -106,5 +106,9 @@ yarn
 gh repo create BOT-TC/vue-fundamenals --public
 
 gh repo list BOT-TC
+
+git remote add origin https://github.com/BOT-TC/vue-fundamenals.git
+git branch -M main
+git push -u origin main
 ```
 
