@@ -7,7 +7,6 @@ describe("Layout Links", () => {
 
   context("Header Section", () => {
     it("Header Links Test", () => {
-      cy.visit("/");
       cy.contains("h1", "Welcome to OLS");
       cy.contains("h2", "Open Learning Server");
 
@@ -27,7 +26,6 @@ describe("Layout Links", () => {
 
   context("Footer Section", () => {
     it("Footer Links Test", () => {
-      cy.visit("/");
       cy.contains("h1", "Welcome to OLS");
 
       cy.get("footer").contains("Learn").click();
@@ -46,7 +44,6 @@ describe("Layout Links", () => {
 
   context("Login", () => {
     it("Login Button Links Test", () => {
-      cy.visit("/");
       cy.contains("h1", "Welcome to OLS");
 
       cy.get("header").contains("Login").click();
@@ -56,7 +53,6 @@ describe("Layout Links", () => {
 
   context("User/Avatar Menu", () => {
     it("User/Avatar Menu Appears", () => {
-      cy.visit("/");
       cy.contains("h1", "Welcome to OLS");
       cy.getByData("user-avatar").should("not.have.class", "show");
       cy.getByData("user-menu").should("not.have.class", "show");

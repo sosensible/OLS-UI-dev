@@ -11,8 +11,10 @@ jobs:
       - name: Cypress run
         uses: cypress-io/github-action@v5
         env:
-          CYPRESS_PORT: 3173
+          CYPRESS_host: api.dev.local
+          CYPRESS_port: 4222
         with:
           start: yarn dev
           # wait for 2 minutes for the server to respond
           wait-on-timeout: 120
+  vitest-run:
