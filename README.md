@@ -94,7 +94,7 @@ Done. Now run:
   npm run dev 
 ```
 
-## 2. Load node-modules, etc.
+## 2. Load node-modules, etc
 
 ```sh
 yarn
@@ -111,4 +111,3 @@ git remote add origin https://github.com/BOT-TC/vue-fundamenals.git
 git branch -M main
 git push -u origin main
 ```
-
