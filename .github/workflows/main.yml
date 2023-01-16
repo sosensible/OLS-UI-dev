@@ -11,7 +11,7 @@ jobs:
       - name: Cypress run
         uses: cypress-io/github-action@v5
         env:
-          CYPRESS_PORT: 5173
+          CYPRESS_PORT: 3173
         with:
           start: yarn dev
           # wait for 2 minutes for the server to respond
