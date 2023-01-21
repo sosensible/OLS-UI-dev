@@ -1,25 +1,47 @@
+<script setup>
+import { onMounted, ref } from "vue";
+import Account from "../components/Account.vue";
+import Auth from "../components/Auth.vue";
+import { supabase } from "../supabase";
+const session = ref();
+onMounted(() => {
+  supabase.auth.getSession().then(({ data }) => {
+    session.value = data.session;
+  });
+  supabase.auth.onAuthStateChange((_, _session) => {
+    session.value = _session;
+  });
+});
+</script>
+
 <template>
   <main class="form-signin w-100 m-auto">
     <form>
-      <img class="mb-4" src="@/assets/OLS-logo.png" alt="" width="240">
+      <img class="mb-4" src="@/assets/OLS-logo.png" alt="" width="240" />
       <h1 class="h3 mb-3 fw-normal">Please sign in</h1>
 
       <div class="form-floating">
-        <input type="email" class="form-control" id="floatingInput" placeholder="name@example.com">
+        <input type="email" class="form-control" id="floatingInput" placeholder="name@example.com" />
         <label for="floatingInput">Email address</label>
       </div>
       <div class="form-floating">
-        <input type="password" class="form-control" id="floatingPassword" placeholder="Password">
+        <input type="password" class="form-control" id="floatingPassword" placeholder="Password" />
         <label for="floatingPassword">Password</label>
       </div>
 
       <div class="checkbox mb-3">
         <label>
-          <input type="checkbox" value="remember-me"> Remember me
+          <input type="checkbox" value="remember-me" /> Remember me
         </label>
       </div>
-      <button class="w-100 btn btn-lg btn-primary" type="submit">Sign in</button>
+      <button class="w-100 btn btn-lg btn-primary" type="submit">
+        Sign in
+      </button>
     </form>
+    <div class="container" style="padding: 50px 0 100px 0">
+      <Account v-if="session" :session="session" />
+      <Auth v-else />
+    </div>
   </main>
 </template>
 
@@ -30,7 +52,7 @@
 
 .form-control-dark:focus {
   border-color: #fff;
-  box-shadow: 0 0 0 .25rem rgba(255, 255, 255, .25);
+  box-shadow: 0 0 0 0.25rem rgba(255, 255, 255, 0.25);
 }
 
 .text-small {
@@ -40,7 +62,6 @@
 .dropdown-toggle {
   outline: 0;
 }
-
 
 html,
 body {
