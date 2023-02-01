@@ -12,7 +12,7 @@ jobs:
         uses: cypress-io/github-action@v5
         env:
           CYPRESS_host: api.dev.local
-          CYPRESS_port: 4222
+          CYPRESS_port: 5173
         with:
           start: yarn dev
           # wait for 2 minutes for the server to respond
