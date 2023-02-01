@@ -12,6 +12,42 @@ onMounted(() => {
     session.value = _session;
   });
 });
+
+// login code
+//
+// *** github ( https://supabase.com/docs/guides/auth/social-login/auth-github )
+//
+// async function signInWithGitHub() {
+//   const { data, error } = await supabase.auth.signInWithOAuth({
+//     provider: 'github',
+//   })
+// }
+// async function signout() {
+//   const { error } = await supabase.auth.signOut()
+// }
+//
+// *** google workspaces ( https://supabase.com/docs/guides/auth/social-login/auth-google )
+//
+// async function signInWithGoogle() {
+//   const { data, error } = await supabase.auth.signInWithOAuth({
+//     provider: 'google',
+//   })
+// }
+// async function signout() {
+//   const { error } = await supabase.auth.signOut()
+// }
+//
+// *** LinkedIn ( https://supabase.com/docs/guides/auth/social-login/auth-linkedin )
+//
+// async function signInWithLinkedIn() {
+//   const { data, error } = await supabase.auth.signInWithOAuth({
+//     provider: 'linkedin',
+//   })
+// }
+// async function signout() {
+//   const { error } = await supabase.auth.signOut()
+// }
+
 </script>
 
 <template>
