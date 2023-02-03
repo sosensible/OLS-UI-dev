@@ -111,3 +111,24 @@ git remote add origin https://github.com/BOT-TC/vue-fundamenals.git
 git branch -M main
 git push -u origin main
 ```
+---
+
+## Supabase Setup
+
+* Setup Supabase Cloud Project
+* Setup Local Project
+
+```sh
+supabase login
+(you will need your account access token you generated)
+
+supabase link --project-ref [Reference ID] -p [DB_PASSWORD]
+
+supabase db remote commit
+
+?? one or both of the following
+supabase db push
+supabase db reset
+```
+NOTE: You can change configuration using the /supabase/config.toml file.
+NOTE: You can access the email via the port in the conf. since it does actuall get sent.
