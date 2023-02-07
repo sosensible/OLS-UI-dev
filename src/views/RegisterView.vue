@@ -1,25 +1,25 @@
 <script setup lang="ts">
-import router from "../router";
 import { onMounted, ref } from "vue";
 import Account from "../components/Account.vue";
 import Auth from "../components/Auth.vue";
 import { supabase } from "../supabase";
+const isRegistered = ref(false);
 const session = ref();
-const isLoggedIn = ref(false);
-const userEmail = ref();
-const userPassword = ref();
-async function signInUser() {
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email: userEmail.value,
-    password: userPassword.value,
-  })
+const regEmail = ref();
+const regPassword = ref();
+async function registerUser() {
+  const { data, error } = await supabase.auth.signUp({
+    email: regEmail.value,
+    password: regPassword.value,
+  });
   if (error) {
     alert(error.message)
   }
   if (data) {
-    isLoggedIn.value = data.user ? true : false;
-    router.push({ path: '/about' });
+    console.log({ data: data });
+    isRegistered.value = data.user ? true : false;
   }
+
 }
 onMounted(() => {
   supabase.auth.getSession().then(({ data }) => {
@@ -69,35 +69,26 @@ onMounted(() => {
 
 <template>
   <main class="form-signin w-100 m-auto">
-    <form @submit.prevent="signInUser">
-      <img class="mb-4" src="@/assets/OLS-logo.png" alt="Open Learning Server Logo" width="240" />
-      <h1 class="h3 mb-3 fw-normal">Please sign in</h1>
+    <h1>Registration</h1>
+    <form @submit.prevent="registerUser" v-if="!isRegistered">
+      <img class="mb-4" src="@/assets/OLS-logo.png" alt="" width="240" />
+      <h1 class="h3 mb-3 fw-normal">Please register</h1>
 
       <div class="form-floating">
-        <input type="email" class="form-control" id="floatingInput" placeholder="name@example.com"
-          v-model="userEmail" />
+        <input type="email" class="form-control" id="floatingInput" placeholder="name@example.com" v-model="regEmail" />
         <label for="floatingInput">Email address</label>
       </div>
       <div class="form-floating">
         <input type="password" class="form-control" id="floatingPassword" placeholder="Password"
-          v-model="userPassword" />
+          v-model="regPassword" />
         <label for="floatingPassword">Password</label>
       </div>
 
-      <div class="checkbox mb-3">
-        <label>
-          <input type="checkbox" value="remember-me" /> Remember me
-        </label>
-      </div>
-      <button class="w-100 btn btn-lg btn-primary" type="submit">
-        Sign in
+      <button class="w-100 btn btn-lg btn-primary" type="submit" @xclick="registerUser">
+        Register
       </button>
     </form>
-    <RouterLink to="/register">Register New Account</RouterLink>
-    <div class="container" style="padding: 50px 0 100px 0">
-      <Account v-if="session" :session="session" />
-      <Auth v-else />
-    </div>
+    <div v-else>User registered :{{ isRegistered }}: for email {{ regEmail }}</div>
   </main>
 </template>
 

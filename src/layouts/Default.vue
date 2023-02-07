@@ -1,3 +1,22 @@
+<script setup lang="ts">
+import { onMounted, ref } from "vue";
+import { supabase } from "../supabase";
+const loggedIn = ref(false);
+const session = ref();
+const user = ref({});
+
+async function logout() {
+  const { error } = await supabase.auth.signOut();
+  if (error) {
+    alert(error.message);
+  }
+}
+
+onMounted(() => {
+  console.log('mounted');
+});
+</script>
+
 <template>
   <header class="p-3 text-bg-dark">
     <div class="container">
@@ -19,8 +38,9 @@
         </form>
 
         <div class="text-end">
-          <router-link type="button" :to="{ name: 'login' }" class="btn  btn-outline-light me-2">Login</router-link>
-          <router-link type="button" :to="{ name: 'login' }" class="btn btn-warning">Sign-Up</router-link>
+          <router-link type="button" :to="{ name: 'login' }" class="btn btn-warning"
+            v-if="!loggedIn">Login</router-link>
+          <button class="btn btn-warning" type="submit" @click="logout" v-else>Logout</button>
         </div>
 
         <div class="text-end ms-2">
