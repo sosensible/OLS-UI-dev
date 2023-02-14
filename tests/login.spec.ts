@@ -27,6 +27,8 @@ test('login registered user', async ({ page }) => {
   await page.getByPlaceholder('Password').fill('insecure');
   const btnLogin = page.getByRole('button', { name: 'Sign In' });
   await btnLogin.click();
+
+  await expect(page.getByText(/This is an about page/)).toBeVisible();
 })
 
 // test('has title', async ({ page }) => {

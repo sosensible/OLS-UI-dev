@@ -1,89 +1,100 @@
-import { ref, computed } from 'vue'
+import type { Session, User } from '@supabase/supabase-js'
+import { useStorage } from '@vueuse/core'
 import { defineStore } from 'pinia'
 import { supabase } from "../supabase";
+import { createToast } from "mosha-vue-toastify";
+
+interface UserState {
+  user: User | any | null;
+  session: Session | any | null;
+  isLoggedIn: boolean;
+  isLoading: boolean;
+  error: string | null;
+}
 
 export const useUserStore = defineStore('user', {
-  state: () => ({
-    user: {},
-    session: {}
+  state: (): UserState => ({
+    // user: null,
+    // session: null,
+    user: useStorage('ols_user', null),
+    session: useStorage('ols_session', null),
+    isLoggedIn: useStorage('ols_user', false) == false ? false : true,
+    isLoading: false,
+    error: null
   }),
   getters: {
-    loggedIn(state) {
-      return state.user?.id ? true : false
-    }
+    getIsLoggedIn: (state) => state.isLoggedIn,
+    getIsLoading: (state) => state.isLoading,
+    getUser: (state) => state.user,
+    getError: (state) => state.error
   },
   actions: {
-    async login(email, password) {
-      // console.log("logging in with email " & email & " and password" & password)
-      console.log({ email: email, password: password })
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: email,
-        password: password,
-      })
-      if (error) {
-        alert(error.message)
+    async login(email: string, password: string) {
+      try {
+        this.isLoading = true;
+        const { data: { session, user }, error } = await supabase.auth.signInWithPassword({
+          email: email,
+          password: password,
+        });
+        if (session) {
+          // const { data: { session } } = await supabase.auth.getSession()
+          // const { data: { user } } = await supabase.auth.getUser()
+          this.session = session
+          this.user = user
+          this.isLoggedIn = true
+          console.log(user.id)
+          console.log(session.token_type)
+        }
+        if (error) {
+          this.error = error.message;
+          createToast(this.error, {
+            showIcon: true,
+            position: "top-center",
+            type: "danger",
+            transition: "slide",
+          });
+        }
+        createToast("You are now logged in.", {
+          showIcon: true,
+          position: "top-center",
+          type: "success",
+          transition: "slide",
+        });
+      } catch (err) {
+        this.isLoading = false;
+        this.error = (err as Error).message;
+        createToast(this.error, {
+          showIcon: true,
+          position: "top-center",
+          type: "danger",
+          transition: "slide",
+        });
+      } finally {
+        this.isLoading = false;
       }
-      if (data) {
-        this.session = data.session
-        this.user = data.user
-        console.log({ meta: { altUser: data.user, user: this.user, session: data.session } })
-      }
-
     },
     async logout() {
-      const { error } = await supabase.auth.signOut()
-
-      if (error) {
-        alert(error.message)
-      }
-
-      const { data, error: sessionError } = await supabase.auth.getSession();
-
-      if (sessionError) {
-        alert(sessionError.message)
-      }
-      if (data) {
-        this.session = data.session
-        this.user = data.user
+      try {
+        await supabase.auth.signOut();
+        this.user = null;
+        this.session = null;
+        this.isLoggedIn = false;
+        createToast("Logged out successfully!", {
+          showIcon: true,
+          position: "top-center",
+          type: "success",
+          transition: "slide",
+          hideProgressBar: true,
+        });
+      } catch (err) {
+        this.error = (err as Error).message;
+        createToast(this.error, {
+          showIcon: true,
+          position: "top-center",
+          type: "danger",
+          transition: "slide",
+        });
       }
     }
   }
 });
-
-export const xuseUserStore = defineStore('user', () => {
-  const session = ref()
-  const user = ref(defaultUser())
-
-  supabase.auth.getSession().then(({ data }) => {
-    session.value = data.session;
-    userChange(user, data.session);
-    console.log({ user_session: data.session });
-    console.log({ user_session: session.value });
-    // user.value = data.session?.user;
-    // console.log({ user_meta: data.session.user });
-    console.log({ user_meta: user.value });
-  });
-  supabase.auth.onAuthStateChange((_, _session) => {
-    session.value = _session;
-    // user.value = supabase.auth.getUser()
-
-  });
-  // const doubleCount = computed(() => count.value * 2)
-  // function increment() {
-  //   count.value++
-  // }
-
-  return { user }
-})
-
-function userChange(user, _session) {
-  console.log({ user_check: _session.user });
-  user.value = _session.user;
-}
-
-function defaultUser() {
-  return {
-    name: 'visitor',
-    email: ''
-  }
-}

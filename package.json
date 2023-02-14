@@ -6,8 +6,8 @@
     "dev": "vite",
     "build": "run-p type-check build-only",
     "preview": "vite preview",
-    "sb:gen:local:ts": "supabase gen types typescript --local > ./src/schema.ts",
-    "sb:gen:linked:ts": "supabase gen types typescript --linked > ./src/schema.ts",
+    "sb:gen:local:ts": "supabase gen types typescript --local > ./src/types/schema.ts",
+    "sb:gen:linked:ts": "supabase gen types typescript --linked > ./src/types/schema.ts",
     "sb:db:linked:migr": "supabase db diff --use-migra -f initial_schema --linked",
     "test:unit": "vitest --environment jsdom --root src/",
     "test:e2e": "npx playwright test",
@@ -15,10 +15,14 @@
     "test:e2e:dev": "start-server-and-test 'vite dev --port 4173' :4173 'cypress open --e2e'",
     "build-only": "vite build",
     "type-check": "vue-tsc --noEmit -p tsconfig.vitest.json --composite false",
-    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore"
+    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
+    "etest": "echo %ENV1%",
+    "etest2": "echo %PROCESSOR_ARCHITECTURE%"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.4.1",
+    "@vueuse/core": "^9.12.0",
+    "mosha-vue-toastify": "^1.0.23",
     "pinia": "^2.0.28",
     "vue": "^3.2.45",
     "vue-router": "^4.1.6"

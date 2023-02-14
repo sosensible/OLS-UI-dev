@@ -1,9 +1,12 @@
-<script setup>
+<script setup lang="ts">
+import { useUserStore } from '@/stores/user';
 import { supabase } from '../supabase'
 import { onMounted, ref, toRefs } from 'vue'
 import Avatar from './Avatar.vue';
 
 const props = defineProps(['session'])
+const userStore = useUserStore();
+const _user = userStore.user;
 const { session } = toRefs(props)
 
 const loading = ref(true)
@@ -12,7 +15,7 @@ const website = ref('')
 const avatar_url = ref('')
 
 onMounted(() => {
-  getProfile()
+  if (userStore.getIsLoggedIn) { getProfile(); }
 })
 
 async function getProfile() {
@@ -93,14 +96,14 @@ async function signOut() {
     </div>
 
     <div>
-      <input type="submit" class="button primary block" :value="loading ? 'Loading ...' : 'Update'"
-        :disabled="loading" />
+      <input type="submit" class="button primary block" :value="userStore.isLoading ? 'Loading ...' : 'Update'"
+        :disabled="userStore.isLoading" />
     </div>
 
-    <div>
-      <button class="button block" @click="signOut" :disabled="loading">
-        Sign Out
-      </button>
-    </div>
   </form>
+  <div>
+    <button class="button block" @click="userStore.logout" :disabled="userStore.isLoading">
+      Sign Out
+    </button>
+  </div>
 </template>

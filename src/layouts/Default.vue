@@ -1,19 +1,16 @@
 <script setup lang="ts">
+import { useUserStore } from '@/stores/user';
 import { onMounted, ref } from "vue";
 import { supabase } from "../supabase";
+import 'mosha-vue-toastify/dist/style.css'
+
 const loggedIn = ref(false);
 const session = ref();
-const user = ref({});
-
-async function logout() {
-  const { error } = await supabase.auth.signOut();
-  if (error) {
-    alert(error.message);
-  }
-}
+const userStore = useUserStore();
+const user = userStore.user;
 
 onMounted(() => {
-  console.log('mounted');
+  // console.log('mounted');
 });
 </script>
 
@@ -38,15 +35,15 @@ onMounted(() => {
         </form>
 
         <div class="text-end">
-          <router-link type="button" :to="{ name: 'login' }" class="btn btn-warning"
-            v-if="!loggedIn">Login</router-link>
-          <button class="btn btn-warning" type="submit" @click="logout" v-else>Logout</button>
+          <button class="btn btn-warning" type="submit" @click="userStore.logout"
+            v-if="userStore.isLoggedIn">Logout</button>
+          <router-link type="button" :to="{ name: 'login' }" class="btn btn-warning" v-else>Login</router-link>
         </div>
 
         <div class="text-end ms-2">
           <a data-test="user-avatar" href="#" class="d-block link-dark text-decoration-none dropdown-toggle"
             data-bs-toggle="dropdown" aria-expanded="false">
-            <img src="https://github.com/mdo.png" alt="mdo" width="32" height="32" class="rounded-circle">
+            <img src="https://github.com/mdo.png" alt="mdo" title="odm" width="32" height="32" class="rounded-circle">
           </a>
           <ul data-test="user-menu" class="dropdown-menu text-small">
             <li><a class="dropdown-item" href="#">New course...</a></li>

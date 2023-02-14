@@ -1,25 +1,21 @@
 <script setup lang="ts">
+import { useUserStore } from '@/stores/user';
 import router from "../router";
 import { onMounted, ref } from "vue";
 import Account from "../components/Account.vue";
 import Auth from "../components/Auth.vue";
 import { supabase } from "../supabase";
+
+const userStore = useUserStore();
+const user = userStore.user;
+
 const session = ref();
 const isLoggedIn = ref(false);
 const userEmail = ref();
 const userPassword = ref();
+
 async function signInUser() {
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email: userEmail.value,
-    password: userPassword.value,
-  })
-  if (error) {
-    alert(error.message)
-  }
-  if (data) {
-    isLoggedIn.value = data.user ? true : false;
-    router.push({ path: '/about' });
-  }
+  userStore.login(userEmail.value, userPassword.value);
 }
 onMounted(() => {
   supabase.auth.getSession().then(({ data }) => {
@@ -29,48 +25,12 @@ onMounted(() => {
     session.value = _session;
   });
 });
-/*
-// login code
-//
-// *** github ( https://supabase.com/docs/guides/auth/social-login/auth-github )
-//
-// async function signInWithGitHub() {
-//   const { data, error } = await supabase.auth.signInWithOAuth({
-//     provider: 'github',
-//   })
-// }
-// async function signout() {
-//   const { error } = await supabase.auth.signOut()
-// }
-//
-// *** google workspaces ( https://supabase.com/docs/guides/auth/social-login/auth-google )
-//
-// async function signInWithGoogle() {
-//   const { data, error } = await supabase.auth.signInWithOAuth({
-//     provider: 'google',
-//   })
-// }
-// async function signout() {
-//   const { error } = await supabase.auth.signOut()
-// }
-//
-// *** LinkedIn ( https://supabase.com/docs/guides/auth/social-login/auth-linkedin )
-//
-// async function signInWithLinkedIn() {
-//   const { data, error } = await supabase.auth.signInWithOAuth({
-//     provider: 'linkedin',
-//   })
-// }
-// async function signout() {
-//   const { error } = await supabase.auth.signOut()
-// }
-*/
 </script>
 
 <template>
   <main class="form-signin w-100 m-auto">
-    <form @submit.prevent="signInUser">
-      <img class="mb-4" src="@/assets/OLS-logo.png" alt="Open Learning Server Logo" width="240" />
+    <img class="mb-4" src="@/assets/OLS-logo.png" alt="Open Learning Server Logo" width="240" />
+    <form @submit.prevent="signInUser" v-if="!userStore.isLoggedIn">
       <h1 class="h3 mb-3 fw-normal">Please sign in</h1>
 
       <div class="form-floating">
@@ -93,7 +53,7 @@ onMounted(() => {
         Sign in
       </button>
     </form>
-    <RouterLink to="/register">Register New Account</RouterLink>
+    <RouterLink to="/register" v-if="!userStore.isLoggedIn">Register New Account</RouterLink>
     <div class="container" style="padding: 50px 0 100px 0">
       <Account v-if="session" :session="session" />
       <Auth v-else />

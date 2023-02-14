@@ -28,6 +28,9 @@ export interface Database {
     Enums: {
       [_ in never]: never
     }
+    CompositeTypes: {
+      [_ in never]: never
+    }
   }
   public: {
     Tables: {
@@ -40,8 +43,9 @@ export interface Database {
           live: boolean | null
           main_key: number | null
           name: string | null
-          owner: number | null
+          owner: string | null
           updated_at: string | null
+          xowner: number | null
         }
         Insert: {
           created_at?: string | null
@@ -51,8 +55,9 @@ export interface Database {
           live?: boolean | null
           main_key?: number | null
           name?: string | null
-          owner?: number | null
+          owner?: string | null
           updated_at?: string | null
+          xowner?: number | null
         }
         Update: {
           created_at?: string | null
@@ -62,8 +67,9 @@ export interface Database {
           live?: boolean | null
           main_key?: number | null
           name?: string | null
-          owner?: number | null
+          owner?: string | null
           updated_at?: string | null
+          xowner?: number | null
         }
       }
       creator: {
@@ -252,6 +258,9 @@ export interface Database {
     Enums: {
       [_ in never]: never
     }
+    CompositeTypes: {
+      [_ in never]: never
+    }
   }
   storage: {
     Tables: {
@@ -381,5 +390,9 @@ export interface Database {
     Enums: {
       [_ in never]: never
     }
+    CompositeTypes: {
+      [_ in never]: never
+    }
   }
 }
+
