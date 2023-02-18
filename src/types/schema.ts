@@ -34,7 +34,7 @@ export interface Database {
   }
   public: {
     Tables: {
-      course: {
+      courses: {
         Row: {
           created_at: string | null
           detail: string | null
@@ -69,7 +69,7 @@ export interface Database {
           updated_at?: string | null
         }
       }
-      creator: {
+      creators: {
         Row: {
           created_at: string | null
           id: number
@@ -89,7 +89,7 @@ export interface Database {
           updated_at?: string | null
         }
       }
-      enrollment: {
+      enrollments: {
         Row: {
           course: number | null
           created_at: string | null
@@ -112,7 +112,7 @@ export interface Database {
           updated_at?: string | null
         }
       }
-      lesson: {
+      lessons: {
         Row: {
           content: string | null
           created_at: string | null
@@ -144,7 +144,7 @@ export interface Database {
           updated_at?: string | null
         }
       }
-      owner: {
+      owners: {
         Row: {
           created_at: string | null
           id: number
@@ -190,7 +190,7 @@ export interface Database {
           website?: string | null
         }
       }
-      student: {
+      students: {
         Row: {
           created_at: string | null
           id: number
@@ -210,7 +210,7 @@ export interface Database {
           updated_at?: string | null
         }
       }
-      unit: {
+      units: {
         Row: {
           content: string | null
           course: number | null
@@ -392,3 +392,4 @@ export interface Database {
     }
   }
 }
+
