@@ -2,7 +2,11 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import LoginView from '../views/LoginView.vue'
 import RegisterView from '../views/RegisterView.vue'
-import LearnView from '../views/LearnView.vue'
+import LearnView from '../views/learn/OLSView.vue'
+import CourseListView from '../views/learn/CourseListView.vue'
+import CourseView from '../views/learn/CourseView.vue'
+import UnitView from '../views/learn/UnitView.vue'
+import LessonView from '../views/learn/LessonView.vue'
 import NewsView from '../views/NewsView.vue'
 
 const router = createRouter({
@@ -25,8 +29,32 @@ const router = createRouter({
     },
     {
       path: '/learn',
-      name: 'learn',
-      component: LearnView
+      component: LearnView,
+      children: [
+        {
+          path: '',
+          name: 'olsMain',
+          component: CourseListView
+        },
+        {
+          path: 'course/:id/:action?',
+          name: 'olsCourse',
+          component: CourseView,
+          props: true,
+        },
+        {
+          path: 'unit/:id/:action?/:course_id?',
+          name: 'olsUnit',
+          component: UnitView,
+          props: true,
+        },
+        {
+          path: 'lesson/:id/:action?/:lesson_id?',
+          name: 'olsLesson',
+          component: LessonView,
+          props: true,
+        },
+      ]
     },
     {
       path: '/news',

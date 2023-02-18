@@ -24,7 +24,7 @@ onMounted(() => {
 
         <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
           <li><router-link :to="{ name: 'home' }" class="nav-link px-2 text-secondary">Home</router-link></li>
-          <li><router-link :to="{ name: 'learn' }" class="nav-link px-2 text-white">Learn</router-link></li>
+          <li><router-link :to="{ name: 'olsMain' }" class="nav-link px-2 text-white">Learn</router-link></li>
           <li><router-link :to="{ name: 'news' }" class="nav-link px-2 text-white">News</router-link></li>
           <li><router-link :to="{ name: 'about' }" class="nav-link px-2 text-white">About</router-link></li>
         </ul>
@@ -65,7 +65,7 @@ onMounted(() => {
     <footer class=" py-3 my-4">
       <ul class="nav justify-content-center border-bottom pb-3 mb-3">
         <li><router-link :to="{ name: 'home' }" class="nav-link px-2 text-muted">Home</router-link></li>
-        <li><router-link :to="{ name: 'learn' }" class="nav-link px-2 text-muted">Learn</router-link></li>
+        <li><router-link :to="{ name: 'olsMain' }" class="nav-link px-2 text-muted">Learn</router-link></li>
         <li><router-link :to="{ name: 'news' }" class="nav-link px-2 text-muted">News</router-link></li>
         <li><router-link :to="{ name: 'about' }" class="nav-link px-2 text-muted">About</router-link></li>
       </ul>

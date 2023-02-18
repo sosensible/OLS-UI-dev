@@ -1,9 +1,11 @@
 import type { Session, User } from '@supabase/supabase-js'
 import { useStorage } from '@vueuse/core'
-import { defineStore } from 'pinia'
+import { defineStore, acceptHMRUpdate } from 'pinia'
 import { supabase } from "../supabase";
 import { createToast } from "mosha-vue-toastify";
-
+// sbp_61492580d002882ea03b6af805eb1a279a6fa412  Access Token
+// n9N2QZhdJ73SZnrY DB Password
+// postgres://postgres:n9N2QZhdJ73SZnrY@db.hcdprxdewjvgcicmskja.supabase.co:6543/postgres DB URL
 interface UserState {
   user: User | any | null;
   session: Session | any | null;
@@ -98,3 +100,7 @@ export const useUserStore = defineStore('user', {
     }
   }
 });
+
+if (import.meta.hot) {
+  import.meta.hot.accept(acceptHMRUpdate(useUserStore, import.meta.hot))
+}
