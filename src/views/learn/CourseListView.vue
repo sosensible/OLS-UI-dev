@@ -21,15 +21,28 @@
 import router from '@/router';
 import { useCourseStore } from '@/stores/course';
 import type { Database } from '@/types/schema';
-import { ref } from 'vue';
+import { onActivated, onMounted, ref } from 'vue';
+import { useUserStore } from '@/stores/user';
 
 const searchText = ref("");
 const courseStore = useCourseStore();
 const courses = courseStore.courses;
+const userStore = useUserStore();
 
-if (!courseStore.listPulled) {
-  courseStore.pullCourseList(searchText.value);
-}
+onActivated(() => {
+  // @ts-ignore
+  if (!userStore.isLoggedIn | courseStore.listPulledAt < userStore.getChangedLoginAt | !courseStore.courses.length) {
+    courseStore.pullCourseList(searchText.value);
+  }
+  console.log("course list page activated");
+})
+onMounted(() => {
+  // @ts-ignore
+  if (!userStore.isLoggedIn | courseStore.listPulledAt < userStore.getChangedLoginAt | !courseStore.courses.length) {
+    courseStore.pullCourseList(searchText.value);
+  }
+  console.log("course list page mounted");
+})
 
 const viewCourse = (targetCourse: Database['public']['Tables']['course']['Row'] | { id: string }, action?: string) =>
   router.push({ name: 'olsCourse', params: { id: targetCourse.id, action: action } });

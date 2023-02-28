@@ -34,13 +34,19 @@ const router = createRouter({
         {
           path: '',
           name: 'olsMain',
-          component: CourseListView
+          component: CourseListView,
+          meta: {
+            reload: true,
+          }
         },
         {
           path: 'course/:id/:action?',
           name: 'olsCourse',
           component: CourseView,
           props: true,
+          meta: {
+            reload: true,
+          }
         },
         {
           path: 'unit/:id/:action?/:course_id?',

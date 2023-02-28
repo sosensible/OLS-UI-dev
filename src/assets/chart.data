@@ -1,0 +1,23 @@
+st=>start: Start:>http://www.google.com[blank]
+e=>end:>http://www.google.com
+unit1=>parallel: Unit 1
+les1_1=>subroutine: Lesson 1:1
+skill1=>parallel: Pivot 1
+les1_2=>subroutine: Lesson 1:2
+les1_2a=>subroutine: Lesson 1:2a
+les1_3=>subroutine: Lesson 1:3
+unit2=>parallel: Unit 2
+les2_1=>subroutine: Lesson 2:1
+les2_2=>subroutine: Lesson 2:2
+unit3=>operation: Unit 3
+
+st->unit1
+unit1(path1,right)->les1_1(right)->skill1
+skill1(path1,right)->les1_2->les1_3
+skill1(path2,bottom)->les1_2a->les1_3
+unit1(path2,bottom)->unit2->unit3
+unit2(path1,right)->les2_1(right)->les2_2
+unit2(path2,bottom)->unit3
+st@>unit1({"stroke":"Red"})@>unit2({"stroke":"Red"})@>unit3({"stroke":"Red"})
+
+via https://flowchart.js.org/

@@ -12,6 +12,12 @@ const user = userStore.user;
 onMounted(() => {
   // console.log('mounted');
 });
+
+const logSession = async () => {
+  // const s = await console.log(userStore.getSession())
+  // console.log('s', s)
+}
+// const showTime = () => userStore.sessionExpires()
 </script>
 
 <template>
@@ -47,7 +53,7 @@ onMounted(() => {
           </a>
           <ul data-test="user-menu" class="dropdown-menu text-small">
             <li><a class="dropdown-item" href="#">New course...</a></li>
-            <li><a class="dropdown-item" href="#">Settings</a></li>
+            <li><a class="dropdown-item" href="#" @click="logSession()">Settings</a></li>
             <li><a class="dropdown-item" href="#">Profile</a></li>
             <li>
               <hr class="dropdown-divider">
