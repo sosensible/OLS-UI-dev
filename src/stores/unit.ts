@@ -1,33 +1,37 @@
 import type { Database } from '../types/schema'
 import { defineStore, acceptHMRUpdate } from 'pinia';
 import { supabase } from '../supabase'
+import { useCourseStore } from './course';
+import { useUserStore } from './user';
 
 interface UnitState {
-  unit: Database['public']['Tables']['unit']['Row'] | null;
-  units: Database['public']['Tables']['unit']['Row'][];
+  unit: Database['public']['Tables']['units']['Row'] | null;
+  units: Database['public']['Tables']['units']['Row'][];
   courseID: number | null;
   courseName: string | null;
-  count: number;
   listPulled: boolean;
 }
 
+// const courseStore = useCourseStore();
+
+const unitDefault = {
+  created_at: null,
+  id: 0,
+  name: "",
+  content: "",
+  image: null,
+  live: false,
+  main_key: null,
+  course: 0,
+  updated_at: null,
+} as Database['public']['Tables']['units']['Row']
+
 export const useUnitStore = defineStore('unit', {
   state: (): UnitState => ({
-    unit: {
-      created_at: null,
-      id: 0,
-      name: "",
-      content: "",
-      image: null,
-      live: false,
-      main_key: null,
-      course: 0,
-      updated_at: null,
-    },
+    unit: unitDefault,
     units: [],
     courseID: null,
     courseName: null,
-    count: 0,
     listPulled: false,
   }),
   getters: {
@@ -36,22 +40,38 @@ export const useUnitStore = defineStore('unit', {
     }
   },
   actions: {
-    async addUnit() {
-      const newUnit: Database['public']['Tables']['unit']['Row'] = {
-        created_at: null,
-        id: 11,
-        name: "CC 4",
-        detail: "After Learning CC",
-        image: null,
-        live: false,
-        main_key: null,
-        owner: null,
-        updated_at: null,
-      };
-      this.units.push(newUnit);
+    async insertUnit() {
+      const userStore = useUserStore();
+      const { data: unit, error } = await supabase.from('units').insert({
+        name: this.unit?.name,
+        content: this.unit?.content,
+        live: this.unit?.live,
+        owner: userStore.user.id,
+      }).select().single();
+      if (unit) {
+        // @ts-ignore
+        this.unit.id = unit.id
+        console.log(unit);
+      }
+      if (error) { console.log(error) }
     },
-    increment() {
-      this.count++
+    async updateCourse() {
+      const { data: unit, error } = await supabase.from('units').update({
+        name: this.unit?.name,
+        content: this.unit?.content,
+        live: this.unit?.live,
+      })
+        .eq('id', this.unit?.id)
+        .select().single();
+      if (unit) {
+        // @ts-ignore
+        this.unit.id = unit.id
+        console.log(unit);
+      }
+      if (error) { console.log(error) }
+    },
+    newUnit() {
+      this.unit = unitDefault;
     },
     async pullUnitList(searchText: string) {
       const { data: units, error } = await supabase.from('units').select().ilike("name", `%${searchText}%`);
@@ -76,9 +96,9 @@ export const useUnitStore = defineStore('unit', {
         course ( id, name )
         `).eq('id', id).single();
       if (unit) {
-        this.courseID = unit.course.id;
-        this.courseName = unit.course.name;
-        delete unit.course
+        this.courseID = unit.course?.id;
+        this.courseName = unit.course?.name;
+        delete unit.course;
         this.unit = unit;
       }
       if (error) console.log(error);

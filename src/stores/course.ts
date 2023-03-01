@@ -5,8 +5,8 @@ import { useUserStore } from './user';
 import { unref } from 'vue'
 
 interface CourseState {
-  course: Database['public']['Tables']['course']['Row'] | null;
-  courses: Database['public']['Tables']['course']['Row'][];
+  course: Database['public']['Tables']['courses']['Row'] | null;
+  courses: Database['public']['Tables']['courses']['Row'][];
   count: number;
   listPulledAt: Date | null;
   lastUserChange: Date | null;
@@ -26,7 +26,7 @@ const courseDefault = {
   main_key: null,
   owner: null,
   updated_at: null,
-}
+} as Database['public']['Tables']['courses']['Row']
 
 export const useCourseStore = defineStore('course', {
   state: (): CourseState => ({
@@ -54,31 +54,50 @@ export const useCourseStore = defineStore('course', {
     }
   },
   actions: {
-    async insertCourse() {
-      // const newCourse: Database['public']['Tables']['course']['Row'] = {
-      //   created_at: null,
-      //   id: 11,
-      //   name: "CC 4",
-      //   detail: "After Learning CC",
-      //   image: null,
-      //   live: false,
-      //   main_key: null,
-      //   owner: null,
-      //   updated_at: null,
-      // };
+    async insertCourse(): Promise<number> {
       const userStore = useUserStore();
       const { data: course, error } = await supabase.from('courses').insert({
-        name: this.course.name,
-        detail: this.course.detail,
-        live: this.course.live,
+        name: this.course?.name,
+        detail: this.course?.detail,
+        live: this.course?.live,
         owner: userStore.user.id,
       }).select().single();
       if (course) {
         // @ts-ignore
         this.course.id = course.id
         console.log(course);
+        this.courses.length = 0;
       }
       if (error) { console.log(error) }
+      // @ts-ignore
+      return this.course.id;
+    },
+    async updateCourse(): Promise<number> {
+      const { data: course, error } = await supabase.from('courses').update({
+        name: this.course?.name,
+        detail: this.course?.detail,
+        live: this.course?.live,
+      })
+        .eq('id', this.course?.id)
+        .select().single();
+      if (course) {
+        // @ts-ignore
+        this.course.id = course.id;
+        console.log(course);
+        this.courses.length = 0;
+      }
+      if (error) { console.log(error) }
+      // @ts-ignore
+      return this.course.id;
+    },
+    async deleteCourse() {
+      const { data, error } = await supabase.from('courses').delete().eq('id', this.course.id);
+      if (data) {
+        this.newCourse();
+      }
+      if (error) {
+        alert(error.details);
+      }
     },
     increment() {
       this.count++
@@ -87,7 +106,10 @@ export const useCourseStore = defineStore('course', {
       this.course = courseDefault;
     },
     async pullCourseList(searchText: string) {
-      const { data: courses, error } = await supabase.from('courses').select().ilike("name", `%${searchText}%`);
+      const { data: courses, error } = await supabase.from('courses').select(`
+        id, name, detail,
+        owner ( id, full_name )
+      `).ilike("name", `%${searchText}%`);
       if (courses) {
         this.courses.length = 0;
         courses.forEach((course) => {
@@ -107,8 +129,10 @@ export const useCourseStore = defineStore('course', {
     async load(id: number) {
       const { data: course, error } = await supabase.from('courses').select(`
         id, name, detail, live,
-        units ( id, name )
+        units ( id, name ),
+        owner ( id, full_name )
         `).eq('id', id).single();
+      // @ts-ignore
       if (course) this.course = course
       if (error) console.log(error);
     },

@@ -1,22 +1,33 @@
 <template>
   <h1>{{ courseStore.course.name }}</h1>
-  <p>Details</p>
-  <div v-if="['add', 'edit'].includes(props.action)">
-    <h3>{{ mode }} Course</h3>
-    id: {{ courseStore.course.id }}<br />
-    name: <input placeholder="new course" v-model="courseStore.course.name" /><br />
-    detail: <textarea v-model="courseStore.course.detail" /><br />
-    live: <input type="checkbox" v-model="courseStore.course.live" value="true">
-    <br />
-    <button @click="editCourse(courseStore.course)" v-if="mode != 'View'">{{ mode }} Course</button>
+  <p>by: {{ courseStore.course?.owner?.full_name }}</p>
+  <p>{{ courseStore.course.detail }}</p>
+
+  <div class="p-2">
+    <button @click="editCourse(courseStore.course, 'edit')" class="btn btn-primary">Edit Course</button>
+    &nbsp;
+    <button @click="deleteCourse()" class="btn btn-primary">Delete Course</button>
   </div>
-  <div v-else v-for="unit in courseStore.course.units" :key="unit.id">
-    <h2>{{ unit.name }}...</h2>
-    <p>Details...</p>
-    <button @click="viewUnit(unit)">View Unit</button>
-    <button @click="viewUnit(unit, 'edit')">Edit Unit</button>
+  <h2>Units</h2>
+  <div class="row pl-3 mr-3">
+    <div v-for="unit in courseStore.course?.units" :key="unit.id" class="col-sm-6 mb-3 mb-sm-0">
+      <div class="card mb3">
+        <div class="card-header">
+          <h2>{{ unit.name }}...</h2>
+        </div>
+        <div class="card-body">
+          <p>Details...</p>
+        </div>
+        <div class="card-footer">
+          <button @click="viewUnit(unit)" class="btn btn-primary">View Unit</button>
+          &nbsp;
+          <button @click="viewUnit(unit, 'edit')" class="btn btn-primary">Edit Unit</button>
+        </div>
+      </div>
+    </div>
   </div>
-  <button @click="viewUnit({ id: 0 }, 'add')">Add Unit</button>
+  <br />
+  <button @click="viewUnit({ id: 0 }, 'add')" class="btn btn-primary">Add Unit</button>
 </template>
 
 <script setup lang="ts">
@@ -29,36 +40,29 @@ defineProps({
   action: String,
 });
 const props = router.currentRoute.value.params;
-const mode = props.action ? title(props.action) : "View";
 console.log(props.action)
 const courseStore = useCourseStore();
-// add "add" logic later
-console.log('course id', props)
-if (props.id != 0) {
+
+if (props.id != '0') {
   courseStore.load(+props.id);
 } else {
   courseStore.newCourse();
 }
-const editCourse = (targetCourse: Database['public']['Tables']['course']['Row']) => {
-  // supabase.from('courses').upsert(targetCourse);
-  if (targetCourse.id === 0) {
-    courseStore.insertCourse();
-  } else {
-    //
-  }
+
+const editCourse = (targetCourse: Database['public']['Tables']['courses']['Row'] | { id: string }, action?: string) => {
+  router.push({ name: 'olsCourseEdit', params: { id: targetCourse.id, action: action } });
 }
 
-const viewUnit = (targetcourse: Database['public']['Tables']['course']['Row'] | { id: string }, action?: string) => {
+const viewUnit = (targetcourse: Database['public']['Tables']['courses']['Row'] | { id: string }, action?: string) => {
   if (action) {
-    router.push({ name: 'olsUnit', params: { id: targetcourse.id, action: action, course_id: courseStore.course.id } });
+    router.push({ name: 'olsUnit', params: { id: targetcourse.id, action: action, course_id: courseStore.course?.id } });
   } else {
     router.push({ name: 'olsUnit', params: { id: targetcourse.id } });
   }
 }
 
-function title(str) {
-  return str.replace(/(?:^|\s)\w/g, function (match) {
-    return match.toUpperCase();
-  });
+const deleteCourse = () => {
+  courseStore.deleteCourse();
+  router.push({ name: 'olsMain' });
 }
 </script>

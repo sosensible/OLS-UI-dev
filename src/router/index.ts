@@ -4,6 +4,7 @@ import LoginView from '../views/LoginView.vue'
 import RegisterView from '../views/RegisterView.vue'
 import LearnView from '../views/learn/OLSView.vue'
 import CourseListView from '../views/learn/CourseListView.vue'
+import CourseEdit from '../views/learn/CourseEdit.vue'
 import CourseView from '../views/learn/CourseView.vue'
 import UnitView from '../views/learn/UnitView.vue'
 import LessonView from '../views/learn/LessonView.vue'
@@ -40,7 +41,16 @@ const router = createRouter({
           }
         },
         {
-          path: 'course/:id/:action?',
+          path: 'course/:id/:action',
+          name: 'olsCourseEdit',
+          component: CourseEdit,
+          props: true,
+          meta: {
+            reload: true,
+          }
+        },
+        {
+          path: 'course/:id/',
           name: 'olsCourse',
           component: CourseView,
           props: true,

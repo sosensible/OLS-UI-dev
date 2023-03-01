@@ -65,7 +65,9 @@ const logSession = async () => {
     </div>
   </header>
 
-  <slot></slot>
+  <div class="container px-3">
+    <slot></slot>
+  </div>
 
   <div class="container xtext-bg-dark">
     <footer class=" py-3 my-4">
