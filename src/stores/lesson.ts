@@ -2,9 +2,11 @@ import type { Database } from '../types/schema'
 import { defineStore, acceptHMRUpdate } from 'pinia';
 import { supabase } from '../supabase'
 
+export type Lesson = Database['public']['Tables']['lessons']['Row']
+
 interface LessonState {
-  lesson: Database['public']['Tables']['lesson']['Row'] | null;
-  lessons: Database['public']['Tables']['lesson']['Row'][];
+  lesson: Lesson | null;
+  lessons: Lesson[];
   unitID: number | null;
   unitName: string,
   courseID: number | null;
@@ -43,7 +45,7 @@ export const useLessonStore = defineStore('lesson', {
   },
   actions: {
     async addLesson() {
-      const newLesson: Database['public']['Tables']['lesson']['Row'] = {
+      const newLesson: Lesson = {
         created_at: null,
         id: 11,
         name: "CC 4",

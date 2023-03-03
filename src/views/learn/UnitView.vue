@@ -1,27 +1,45 @@
 <template>
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <RouterLink to="/learn">Courses</RouterLink>
+      </li>
+      <li class="breadcrumb-item">
+        <RouterLink :to="{ name: 'olsCourse', params: { id: unitStore.getCourseId } }">{{ unitStore.courseName }}
+        </RouterLink>
+      </li>
+      <li class="breadcrumb-item active" aria-current="page">{{ unitStore.unit?.name }}</li>
+    </ol>
+  </nav>
   <h1>{{ unitStore.courseName }}</h1>
-  <h2>{{ unitStore.unit.name }}<button @click="editUnit(unit)">Edit</button></h2>
+  <h2>{{ unitStore.unit?.name }}</h2>
 
-  <p>Content</p>
-  <div v-if="['add', 'edit'].includes(props.action)">
-    <h3>{{ mode }} Unit</h3>
-    id: {{ unitStore.unit.id }}<br />
-    name: <input placeholder="new unit" v-model="unitStore.unit.name" /><br />
-    content: <textarea v-model="unitStore.unit.content" /><br />
-    live: <input type="checkbox" v-model="unitStore.unit.live" value="true">><br />
+  id: {{ unitStore.unit?.id }}<br />
+  Status: {{ unitStore.unit?.live ? "live" : "draft" }}<br />
+  <p>
+    Content<br>
+    {{ unitStore.unit?.content }}
+  </p>
+
+  <div class="p-2">
+    <button @click="editUnit(unitStore.unit, 'edit')" class="btn btn-primary">Edit Unit</button>
+    &nbsp;
+    <button @click="deleteUnit()" class="btn btn-primary">Delete Unit</button>
   </div>
-  <div v-for="lesson in unitStore.unit.lessons" :key="lesson.id">
+  <h3>Lessons</h3>
+  <div v-for="lesson in unitStore.unit?.lessons" :key="lesson.id">
     <h2>{{ lesson.name }}</h2>
     <p>Details</p>
-    <button @click="viewLesson(lesson)">View Lesson</button>
+    <button @click="viewLesson(lesson)" class="btn btn-primary">View Lesson</button>
   </div>
-  <button @click="viewLesson({ id: 0 }, 'add')">Add Lesson</button>
+  <button @click="viewLesson({ id: '0' }, 'add')" class="btn btn-primary">Add Lesson</button>
 </template>
 
 <script setup lang="ts">
+import { ref, watch } from 'vue'
 import router from '@/router';
-import type { Database } from '@/types/schema';
-import { useUnitStore } from '@/stores/unit';
+import { useUnitStore, type Unit } from '@/stores/unit';
+import { useCourseStore } from '@/stores/course';
 
 defineProps({
   id: String,
@@ -29,57 +47,38 @@ defineProps({
   course_id: String,
 });
 const props = router.currentRoute.value.params;
-const mode = props.action ? title(props.action) : "View";
+const courseStore = useCourseStore();
 const unitStore = useUnitStore();
+const courseID = ref(0);
 // add "add" logic later
-unitStore.load(+props.id);
 
 if (props.id != '0') {
   unitStore.load(+props.id);
 } else {
   unitStore.newUnit();
 }
+// watch(unitStore.courseID, async (newID, oldID) => {
+//   courseID.value = +newID;
+// })
 
-const course = {
-  name: 'Course 1',
-  id: 1
+// if (+props.course_id != courseStore.course?.id) courseStore.load(+props.course_id);
+
+const editUnit = (targetUnit: Unit, action: string) => {
+  console.log('target unit', targetUnit)
+  router.push({ name: 'olsUnitEdit', params: { id: targetUnit.id, action: action, course_id: courseStore.course?.id } });
 }
 
-const unit = {
-  name: 'Unit 1',
-  id: 1
+const deleteUnit = () => {
+  const courseId = unitStore.courseID;
+  unitStore.deleteUnit();
+  router.push({ name: 'olsCourse', params: { id: courseId } });
 }
 
-const lessons = [
-  {
-    name: 'Lesson 1',
-    id: 1
-  },
-  {
-    name: 'Lesson 2',
-    id: 2
-  },
-  {
-    name: 'Lesson 3',
-    id: 3
-  },
-]
-
-const editUnit = (targetUnit: Database['public']['Tables']['unit']['Row']) => {
-  alert('edit ' + targetUnit.name);
-}
-
-const viewLesson = (targetLesson: Database['public']['Tables']['unit']['Row'] | { id: string }, action?: string) => {
+const viewLesson = (targetLesson: Unit | { id: string }, action?: string) => {
   if (action) {
-    router.push({ name: 'olsLesson', params: { id: targetLesson.id, action: action, course_id: courseUnit.course.id } });
+    // router.push({ name: 'olsLesson', params: { id: targetLesson.id, action: action, course_id: courseUnit.course.id } });
   } else {
     router.push({ name: 'olsLesson', params: { id: targetLesson.id } });
   }
-}
-
-function title(str) {
-  return str.replace(/(?:^|\s)\w/g, function (match) {
-    return match.toUpperCase();
-  });
 }
 </script>

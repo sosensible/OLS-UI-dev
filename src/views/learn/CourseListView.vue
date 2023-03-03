@@ -35,8 +35,7 @@
 
 <script setup lang="ts">
 import router from '@/router';
-import { useCourseStore } from '@/stores/course';
-import type { Database } from '@/types/schema';
+import { useCourseStore, type Course } from '@/stores/course';
 import { onActivated, onMounted, ref } from 'vue';
 import { useUserStore } from '@/stores/user';
 
@@ -60,10 +59,10 @@ onMounted(() => {
   console.log("course list page mounted");
 })
 
-const editCourse = (targetCourse: Database['public']['Tables']['courses']['Row'] | { id: string }, action: string) =>
+const editCourse = (targetCourse: Course | { id: string }, action: string) =>
   router.push({ name: 'olsCourseEdit', params: { id: targetCourse.id, action: action } });
 
-const viewCourse = (targetCourse: Database['public']['Tables']['courses']['Row'] | { id: string }) =>
+const viewCourse = (targetCourse: Course | { id: string }) =>
   router.push({ name: 'olsCourse', params: { id: targetCourse.id } });
 
 const updateCourses = () => courseStore.pullCourseList(searchText.value)

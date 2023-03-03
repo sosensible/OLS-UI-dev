@@ -4,10 +4,11 @@ import { supabase } from '../supabase'
 import { useUserStore } from './user';
 import { unref } from 'vue'
 
+export type Course = Database['public']['Tables']['courses']['Row'];
+
 interface CourseState {
-  course: Database['public']['Tables']['courses']['Row'] | null;
-  courses: Database['public']['Tables']['courses']['Row'][];
-  count: number;
+  course: Course | null;
+  courses: Course[];
   listPulledAt: Date | null;
   lastUserChange: Date | null;
 }
@@ -26,13 +27,12 @@ const courseDefault = {
   main_key: null,
   owner: null,
   updated_at: null,
-} as Database['public']['Tables']['courses']['Row']
+} as Course;
 
 export const useCourseStore = defineStore('course', {
   state: (): CourseState => ({
     course: courseDefault,
     courses: [],
-    count: 0,
     listPulledAt: new Date(),
     lastUserChange: null,
   }),
@@ -94,16 +94,24 @@ export const useCourseStore = defineStore('course', {
       const { data, error } = await supabase.from('courses').delete().eq('id', this.course.id);
       if (data) {
         this.newCourse();
+        this.courses.length = 0;
       }
       if (error) {
         alert(error.details);
       }
     },
-    increment() {
-      this.count++
-    },
     newCourse() {
-      this.course = courseDefault;
+      this.course = {
+        created_at: null,
+        id: 0,
+        name: "",
+        detail: "",
+        image: null,
+        live: false,
+        main_key: null,
+        owner: null,
+        updated_at: null,
+      } as Course;
     },
     async pullCourseList(searchText: string) {
       const { data: courses, error } = await supabase.from('courses').select(`
@@ -122,9 +130,6 @@ export const useCourseStore = defineStore('course', {
       if (error) {
         console.log(error);
       }
-    },
-    async save() {
-      this.course?.id
     },
     async load(id: number) {
       const { data: course, error } = await supabase.from('courses').select(`

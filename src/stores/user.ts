@@ -101,7 +101,11 @@ export const useUserStore = defineStore('user', {
       }
     },
     async refreshSession() {
-
+      const { data, error } = await supabase.auth.getUser();
+      if (!data.user?.id) {
+        this.user = get_blank_user();
+      }
+      if (error) console.log(error);
     }
   }
 });

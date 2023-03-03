@@ -1,4 +1,5 @@
 <template>
+  <h1>{{ courseStore.course?.name ? courseStore.course?.name : '(Course Name)' }}</h1>
   <h3>Course ({{ props.action }})</h3>
   id: {{ courseStore.course.id }}<br />
   <form>
@@ -24,22 +25,24 @@
     &nbsp;
     <button @click="deleteCourse()" class="btn btn-primary">Delete Course</button>
   </div>
+  <hr>
   <div v-for="unit in courseStore.course?.units" :key="unit.id">
     <h2>{{ unit.name }}...</h2>
     <p>Details...</p>
     <button @click="viewUnit(unit)" class="btn btn-primary">View Unit</button>
     &nbsp;
-    <button @click="viewUnit(unit, 'edit')" class="btn btn-primary">Edit Unit</button>
+    <button @click="editUnit(unit, 'edit')" class="btn btn-primary">Edit Unit</button>
   </div>
   <br>
   <div class="p-2">
-    <button @click="viewUnit({ id: 0 }, 'add')" class="btn btn-primary">Add Unit</button>
+    <button @click="editUnit({ id: 0 }, 'add')" class="btn btn-primary">Add Unit</button>
   </div>
 </template>
 
 <script setup lang="ts">
 import router from '@/router';
-import type { Database } from '@/types/schema';
+import type { Course } from '@/stores/course';
+import type { Unit } from '@/stores/unit';
 import { useCourseStore } from '@/stores/course';
 
 defineProps({
@@ -47,7 +50,7 @@ defineProps({
   action: String,
 });
 const props = router.currentRoute.value.params;
-console.log(props.action)
+console.log(props.action, props.id)
 const courseStore = useCourseStore();
 
 if (props.id != '0') {
@@ -55,7 +58,8 @@ if (props.id != '0') {
 } else {
   courseStore.newCourse();
 }
-const editCourse = async (targetCourse: Database['public']['Tables']['courses']['Row']) => {
+
+const editCourse = async (targetCourse: Course) => {
   // supabase.from('courses').upsert(targetCourse);
   let cid = 0;
   if (targetCourse.id === 0) {
@@ -66,16 +70,16 @@ const editCourse = async (targetCourse: Database['public']['Tables']['courses'][
   router.push({ name: 'olsCourse', params: { id: cid } });
 }
 
-const viewUnit = (targetcourse: Database['public']['Tables']['courses']['Row'] | { id: string }, action?: string) => {
-  if (action) {
-    router.push({ name: 'olsUnit', params: { id: targetcourse.id, action: action, course_id: courseStore.course?.id } });
-  } else {
-    router.push({ name: 'olsUnit', params: { id: targetcourse.id } });
-  }
-}
-
 const deleteCourse = () => {
   courseStore.deleteCourse();
   router.push({ name: 'olsMain' });
+}
+
+const editUnit = (targetunit: Unit | { id: string }, action: string) => {
+  router.push({ name: 'olsUnitEdit', params: { id: targetunit.id, action: action, course_id: courseStore.course?.id } });
+}
+
+const viewUnit = (targetunit: Unit | { id: string }) => {
+  router.push({ name: 'olsUnit', params: { id: targetunit.id } });
 }
 </script>
