@@ -32,7 +32,7 @@
     <p>Details</p>
     <button @click="viewLesson(lesson)" class="btn btn-primary">View Lesson</button>
   </div>
-  <button @click="viewLesson({ id: '0' }, 'add')" class="btn btn-primary">Add Lesson</button>
+  <button @click="editLesson({ id: '0' }, 'add')" class="btn btn-primary">Add Lesson</button>
 </template>
 
 <script setup lang="ts">
@@ -40,12 +40,11 @@ import router from '@/router';
 import { useUnitStore, type Unit } from '@/stores/unit';
 import { useCourseStore } from '@/stores/course';
 
-defineProps({
+const props = defineProps({
   id: String,
   action: String,
   course_id: String,
 });
-const props = router.currentRoute.value.params;
 const courseStore = useCourseStore();
 const unitStore = useUnitStore();
 // add "add" logic later
@@ -74,6 +73,10 @@ const editUnit = async (targetUnit: Unit) => {
 const deleteUnit = () => {
   unitStore.deleteUnit();
   router.push({ name: 'olsCourse', params: { id: props.course_id } });
+}
+
+const editLesson = (targetLesson: Lesson | { id: string }, action: string) => {
+  router.push({ name: 'olsLessonEdit', params: { id: targetLesson.id, action: action, unit_id: unitStore.unit?.id } });
 }
 
 const viewLesson = (targetLesson: Unit | { id: string }, action?: string) => {

@@ -12,7 +12,9 @@
     by: {{ courseStore.course?.owner?.full_name }}<br />
     Status: {{ courseStore.course?.live ? "live" : "draft" }}
   </p>
-  <p>{{ courseStore.course.detail }}</p>
+  <p>
+    <Markdown :source="courseStore.course.detail" class="markdown" />
+  </p>
 
   <div class="p-2">
     <button @click="editCourse(courseStore.course, 'edit')" class="btn btn-primary">Edit Course</button>
@@ -46,13 +48,12 @@
 import router from '@/router';
 import type { Unit } from '@/stores/unit';
 import { useCourseStore, type Course } from '@/stores/course';
+import Markdown from 'vue3-markdown-it';
 
-defineProps({
+const props = defineProps({
   id: String,
   action: String,
 });
-const props = router.currentRoute.value.params;
-console.log(props.action)
 const courseStore = useCourseStore();
 
 if (props.id != '0') {
@@ -78,3 +79,13 @@ const deleteCourse = () => {
   router.push({ name: 'olsMain' });
 }
 </script>
+
+<style>
+.markdown>table {
+  min-width: 100%;
+}
+
+.markdown>table>thead>tr>th {
+  border-bottom: 1px solid;
+}
+</style>

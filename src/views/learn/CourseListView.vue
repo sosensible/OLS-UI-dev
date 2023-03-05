@@ -9,7 +9,7 @@
           Courses</button>
       </div>
       <div v-if="!courses.length" class="text-center text-warning">No courses matching search.</div>
-      <button @click="editCourse({ id: 0 }, 'add')" class="btn btn-primary">Add Course</button>
+      <button @click="editCourse({ id: 0 }, 'add')" class="btn btn-primary" v-if="userStore.user.id">Add Course</button>
     </div>
     <div class="row pl-3 mr-3">
       <div v-for="course in courses" :key="course.id" class="col-sm-6 mb-3 mb-sm-0">

@@ -32,21 +32,21 @@
     <p>Details</p>
     <button @click="viewLesson(lesson)" class="btn btn-primary">View Lesson</button>
   </div>
-  <button @click="viewLesson({ id: '0' }, 'add')" class="btn btn-primary">Add Lesson</button>
+  <button @click="editLesson({ id: '0' }, 'add')" class="btn btn-primary">Add Lesson</button>
 </template>
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import router from '@/router';
 import { useUnitStore, type Unit } from '@/stores/unit';
+import type { Lesson } from '@/stores/lesson';
 import { useCourseStore } from '@/stores/course';
 
-defineProps({
+const props = defineProps({
   id: String,
   action: String,
   course_id: String,
 });
-const props = router.currentRoute.value.params;
 const courseStore = useCourseStore();
 const unitStore = useUnitStore();
 const courseID = ref(0);
@@ -72,6 +72,10 @@ const deleteUnit = () => {
   const courseId = unitStore.courseID;
   unitStore.deleteUnit();
   router.push({ name: 'olsCourse', params: { id: courseId } });
+}
+
+const editLesson = (targetLesson: Lesson | { id: string }, action: string) => {
+  router.push({ name: 'olsLessonEdit', params: { id: targetLesson.id, action: action, unit_id: unitStore.unit?.id } });
 }
 
 const viewLesson = (targetLesson: Unit | { id: string }, action?: string) => {

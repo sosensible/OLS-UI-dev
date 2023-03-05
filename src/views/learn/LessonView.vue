@@ -16,7 +16,7 @@
 import router from '@/router';
 import { useLessonStore } from '@/stores/lesson';
 
-defineProps({
+const props = defineProps({
   id: String,
   action: String,
   lesson_id: String,
@@ -24,7 +24,6 @@ defineProps({
   course_id: String,
 });
 
-const props = router.currentRoute.value.params;
 const lessonStore = useLessonStore();
 // add "add" logic later
 lessonStore.load(+props.id);
@@ -32,4 +31,12 @@ lessonStore.load(+props.id);
 const editLesson = (targetLesson) => {
   alert('edit ' + targetLesson.name);
 }
+/*
+ OR ((live = true) AND (unit IN ( SELECT units.id
+   FROM (((units
+     JOIN courses ON ((courses.id = units.course)))
+     JOIN enrollments ON ((enrollments.course = courses.id)))
+     JOIN students ON ((students.id = enrollments.student)))
+  WHERE (auth.uid() = students.person))))
+  */
 </script>

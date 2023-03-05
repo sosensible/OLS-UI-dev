@@ -20,6 +20,7 @@
     </div>
   </form>
   <br />
+  <Markdown :source="courseStore.course.detail" />
   <div class="p-2">
     <button @click="editCourse(courseStore.course)" class="btn btn-primary">Save Course</button>
     &nbsp;
@@ -44,13 +45,12 @@ import router from '@/router';
 import type { Course } from '@/stores/course';
 import type { Unit } from '@/stores/unit';
 import { useCourseStore } from '@/stores/course';
+import Markdown from 'vue3-markdown-it';
 
-defineProps({
+const props = defineProps({
   id: String,
   action: String,
 });
-const props = router.currentRoute.value.params;
-console.log(props.action, props.id)
 const courseStore = useCourseStore();
 
 if (props.id != '0') {

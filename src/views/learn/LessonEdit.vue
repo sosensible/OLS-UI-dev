@@ -16,7 +16,7 @@
 import router from '@/router';
 import { useLessonStore } from '@/stores/lesson';
 
-defineProps({
+const props = defineProps({
   id: String,
   action: String,
   lesson_id: String,
@@ -24,7 +24,6 @@ defineProps({
   course_id: String,
 });
 
-const props = router.currentRoute.value.params;
 const lessonStore = useLessonStore();
 // add "add" logic later
 lessonStore.load(+props.id);
