@@ -1,8 +1,8 @@
-import type { Database } from '../types/schema'
+import type { Database } from '../../types/schema'
 import { defineStore, acceptHMRUpdate } from 'pinia';
-import { supabase } from '../supabase'
+import { supabase } from '../../supabase'
 import { useCourseStore } from './course';
-import { useUserStore } from './user';
+import { useUserStore } from '../user';
 
 export type Unit = Database['public']['Tables']['units']['Row'];
 

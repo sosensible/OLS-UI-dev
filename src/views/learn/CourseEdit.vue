@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import router from '@/router';
-import type { Course } from '@/stores/course';
-import type { Unit } from '@/stores/unit';
-import { useCourseStore } from '@/stores/course';
+import type { Course } from '@/stores/learn/course';
+import type { Unit } from '@/stores/learn/unit';
+import { useCourseStore } from '@/stores/learn/course';
 import Markdown from 'vue3-markdown-it';
 
 const props = defineProps({

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import router from '@/router';
-import { useLessonStore, type Lesson } from '@/stores/lesson';
-import { useUnitStore, type Unit } from '@/stores/unit';
+import { useLessonStore, type Lesson } from '@/stores/learn/lesson';
+import { useUnitStore, type Unit } from '@/stores/learn/unit';
 import Markdown from 'vue3-markdown-it';
 
 

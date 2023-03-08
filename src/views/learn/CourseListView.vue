@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import router from '@/router';
-import { useCourseStore, type Course } from '@/stores/course';
+import { useCourseStore, type Course } from '@/stores/learn/course';
 import { onActivated, onMounted, ref } from 'vue';
 import { useUserStore } from '@/stores/user';
 
