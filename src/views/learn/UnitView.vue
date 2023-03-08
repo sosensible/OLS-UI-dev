@@ -1,3 +1,54 @@
+<script setup lang="ts">
+import { computed } from 'vue'
+import router from '@/router';
+import { useUnitStore, type Unit } from '@/stores/unit';
+import type { Lesson } from '@/stores/lesson';
+import { useCourseStore } from '@/stores/course';
+import { useUserStore } from '@/stores/user';
+import Markdown from 'vue3-markdown-it';
+
+const props = defineProps({
+  id: String,
+  action: String,
+  course_id: String,
+});
+const courseStore = useCourseStore();
+const unitStore = useUnitStore();
+const userStore = useUserStore();
+
+if (props.id != '0') {
+  unitStore.load(+props.id);
+} else {
+  unitStore.newUnit();
+}
+
+// if (+props.course_id != courseStore.course?.id) courseStore.load(+props.course_id);
+
+const editUnit = (targetUnit: Unit, action: string) => {
+  console.log('target unit', targetUnit)
+  router.push({ name: 'olsUnitEdit', params: { id: targetUnit.id, action: action, course_id: courseStore.course?.id } });
+}
+
+const deleteUnit = () => {
+  const courseId = unitStore.courseID;
+  unitStore.deleteUnit();
+  router.push({ name: 'olsCourse', params: { id: courseId } });
+}
+
+const isOwner = computed(() => {
+  const userIDSet = userStore.user?.id ? true : false;
+  return userIDSet && userStore.user?.id == unitStore.courseOwner;
+});
+
+const editLesson = (targetLesson: Lesson | { id: string }, action: string) => {
+  router.push({ name: 'olsLessonEdit', params: { id: targetLesson.id, action: action, unit_id: unitStore.unit?.id } });
+}
+
+const viewLesson = (targetLesson: Unit | { id: string }, action?: string) => {
+  router.push({ name: 'olsLesson', params: { id: targetLesson.id } });
+}
+</script>
+
 <template>
   <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
@@ -17,72 +68,27 @@
   id: {{ unitStore.unit?.id }}<br />
   Status: {{ unitStore.unit?.live ? "live" : "draft" }}<br />
   <p>
-    Content<br>
-    {{ unitStore.unit?.content }}
+    <Markdown :source="unitStore.unit.content" class="markdown" />
   </p>
 
   <div class="p-2">
-    <button @click="editUnit(unitStore.unit, 'edit')" class="btn btn-primary">Edit Unit</button>
+    <button @click="editUnit(unitStore.unit, 'edit')" class="btn btn-primary" v-if="isOwner">Edit Unit</button>
     &nbsp;
-    <button @click="deleteUnit()" class="btn btn-primary">Delete Unit</button>
+    <button @click="deleteUnit()" class="btn btn-primary"
+      v-if="userStore.user?.id && userStore.user?.id == unitStore.courseOwner">Delete
+      Unit</button>
   </div>
   <h3>Lessons</h3>
   <div v-for="lesson in unitStore.unit?.lessons" :key="lesson.id">
     <h2>{{ lesson.name }}</h2>
     <p>Details</p>
+    <button @click="editLesson(lesson, 'edit')" class="btn btn-primary" v-if="isOwner">Edit Lesson</button>
+    &nbsp;
     <button @click="viewLesson(lesson)" class="btn btn-primary">View Lesson</button>
   </div>
-  <button @click="editLesson({ id: '0' }, 'add')" class="btn btn-primary">Add Lesson</button>
+  <button @click="editLesson({ id: '0' }, 'add')" class="btn btn-primary" v-if="isOwner">Add Lesson</button>
 </template>
 
-<script setup lang="ts">
-import { ref, watch } from 'vue'
-import router from '@/router';
-import { useUnitStore, type Unit } from '@/stores/unit';
-import type { Lesson } from '@/stores/lesson';
-import { useCourseStore } from '@/stores/course';
-
-const props = defineProps({
-  id: String,
-  action: String,
-  course_id: String,
-});
-const courseStore = useCourseStore();
-const unitStore = useUnitStore();
-const courseID = ref(0);
-// add "add" logic later
-
-if (props.id != '0') {
-  unitStore.load(+props.id);
-} else {
-  unitStore.newUnit();
-}
-// watch(unitStore.courseID, async (newID, oldID) => {
-//   courseID.value = +newID;
-// })
-
-// if (+props.course_id != courseStore.course?.id) courseStore.load(+props.course_id);
-
-const editUnit = (targetUnit: Unit, action: string) => {
-  console.log('target unit', targetUnit)
-  router.push({ name: 'olsUnitEdit', params: { id: targetUnit.id, action: action, course_id: courseStore.course?.id } });
-}
-
-const deleteUnit = () => {
-  const courseId = unitStore.courseID;
-  unitStore.deleteUnit();
-  router.push({ name: 'olsCourse', params: { id: courseId } });
-}
-
-const editLesson = (targetLesson: Lesson | { id: string }, action: string) => {
-  router.push({ name: 'olsLessonEdit', params: { id: targetLesson.id, action: action, unit_id: unitStore.unit?.id } });
-}
-
-const viewLesson = (targetLesson: Unit | { id: string }, action?: string) => {
-  if (action) {
-    // router.push({ name: 'olsLesson', params: { id: targetLesson.id, action: action, course_id: courseUnit.course.id } });
-  } else {
-    router.push({ name: 'olsLesson', params: { id: targetLesson.id } });
-  }
-}
-</script>
+<style>
+@import '@/assets/markdown'
+</style>

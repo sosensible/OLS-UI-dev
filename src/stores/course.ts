@@ -131,10 +131,23 @@ export const useCourseStore = defineStore('course', {
         console.log(error);
       }
     },
+    activeUnitList(mode: string = "") {
+      if (["add", "edit"].includes(mode)) {
+        return this.course?.units;
+      } else {
+        const userStore = useUserStore();
+        const units = this.course.units ? this.course.units : [];
+        const my = this;
+        return units.filter((unit) => {
+          const isLive = unit.live ? unit.live : false;
+          return isLive || my.course?.owner?.id == userStore.user.id;
+        });
+      }
+    },
     async load(id: number) {
       const { data: course, error } = await supabase.from('courses').select(`
         id, name, detail, live,
-        units ( id, name ),
+        units ( id, name, live ),
         owner ( id, full_name )
         `).eq('id', id).single();
       // @ts-ignore

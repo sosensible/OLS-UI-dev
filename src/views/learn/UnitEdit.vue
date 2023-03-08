@@ -1,3 +1,56 @@
+<script setup lang="ts">
+import router from '@/router';
+import type { Lesson } from '@/stores/lesson';
+import { useUnitStore, type Unit } from '@/stores/unit';
+import { useCourseStore } from '@/stores/course';
+import Markdown from 'vue3-markdown-it';
+
+const props = defineProps({
+  id: String,
+  action: String,
+  course_id: String,
+});
+const courseStore = useCourseStore();
+const unitStore = useUnitStore();
+// unitStore.load(+props.id);
+
+if (props.id != '0') {
+  unitStore.load(+props.id);
+} else {
+  unitStore.newUnit();
+}
+
+if (+props.course_id != courseStore.course?.id) courseStore.load(+props.course_id);
+
+const editUnit = async (targetUnit: Unit) => {
+  let uid: number | undefined = 0;
+  if (targetUnit.id === 0) {
+    console.log('inserting unit')
+    uid = await unitStore.insertUnit(+props.course_id);
+  } else {
+    uid = await unitStore.updateUnit();
+  }
+  router.push({ name: 'olsUnit', params: { id: uid } });
+}
+
+const deleteUnit = () => {
+  unitStore.deleteUnit();
+  router.push({ name: 'olsCourse', params: { id: props.course_id } });
+}
+
+const editLesson = (targetLesson: Lesson | { id: string }, action: string) => {
+  router.push({ name: 'olsLessonEdit', params: { id: targetLesson.id, action: action, unit_id: unitStore.unit?.id } });
+}
+
+const viewLesson = (targetLesson: Unit | { id: string }, action?: string) => {
+  if (action) {
+    // router.push({ name: 'olsLesson', params: { id: targetLesson.id, action: action, course_id: courseUnit.course.id } });
+  } else {
+    router.push({ name: 'olsLesson', params: { id: targetLesson.id } });
+  }
+}
+</script>
+
 <template>
   <h1>{{ courseStore.course.name }}</h1>
   <h2>{{ unitStore.unit?.name ? unitStore.unit?.name : '(Unit Name)' }}</h2>
@@ -20,6 +73,8 @@
       <label for="unitContent">Content</label>
     </div>
   </form>
+  <br />
+  <Markdown :source="unitStore.unit.content" class="markdown" />
 
   <div class="p-2">
     <button @click="editUnit(unitStore.unit)" class="btn btn-primary">Save Unit</button>
@@ -35,55 +90,6 @@
   <button @click="editLesson({ id: '0' }, 'add')" class="btn btn-primary">Add Lesson</button>
 </template>
 
-<script setup lang="ts">
-import router from '@/router';
-import { useUnitStore, type Unit } from '@/stores/unit';
-import { useCourseStore } from '@/stores/course';
-
-const props = defineProps({
-  id: String,
-  action: String,
-  course_id: String,
-});
-const courseStore = useCourseStore();
-const unitStore = useUnitStore();
-// add "add" logic later
-unitStore.load(+props.id);
-
-if (props.id != '0') {
-  unitStore.load(+props.id);
-} else {
-  unitStore.newUnit();
-}
-
-if (+props.course_id != courseStore.course?.id) courseStore.load(+props.course_id);
-
-const editUnit = async (targetUnit: Unit) => {
-  // supabase.from('courses').upsert(targetUnit);
-  let cid = 0;
-  if (targetUnit.id === 0) {
-    console.log('inserting unit')
-    cid = await unitStore.insertUnit(+props.course_id);
-  } else {
-    cid = await unitStore.updateUnit();
-  }
-  router.push({ name: 'olsUnit', params: { id: cid } });
-}
-
-const deleteUnit = () => {
-  unitStore.deleteUnit();
-  router.push({ name: 'olsCourse', params: { id: props.course_id } });
-}
-
-const editLesson = (targetLesson: Lesson | { id: string }, action: string) => {
-  router.push({ name: 'olsLessonEdit', params: { id: targetLesson.id, action: action, unit_id: unitStore.unit?.id } });
-}
-
-const viewLesson = (targetLesson: Unit | { id: string }, action?: string) => {
-  if (action) {
-    // router.push({ name: 'olsLesson', params: { id: targetLesson.id, action: action, course_id: courseUnit.course.id } });
-  } else {
-    router.push({ name: 'olsLesson', params: { id: targetLesson.id } });
-  }
-}
-</script>
+<style>
+@import '@/assets/markdown'
+</style>

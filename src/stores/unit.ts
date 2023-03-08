@@ -11,7 +11,9 @@ interface UnitState {
   units: Unit[];
   courseID: number | null;
   courseName: string | null;
+  courseOwner: string | null;
   listPulled: boolean;
+  live: boolean;
 }
 
 // const courseStore = useCourseStore();
@@ -34,7 +36,9 @@ export const useUnitStore = defineStore('unit', {
     units: [],
     courseID: null,
     courseName: null,
+    courseOwner: null,
     listPulled: false,
+    live: false,
   }),
   getters: {
     getUnitList(state) {
@@ -45,7 +49,7 @@ export const useUnitStore = defineStore('unit', {
     }
   },
   actions: {
-    async insertUnit(courseID) {
+    async insertUnit(courseID: number): Promise<number> {
       console.log('unit insertUnit run')
       const { data: unit, error } = await supabase.from('units').insert({
         name: this.unit?.name,
@@ -59,7 +63,7 @@ export const useUnitStore = defineStore('unit', {
         console.log(unit);
       }
       if (error) { console.log(error) }
-      return this.unit?.id;
+      return this.unit.id;
     },
     async updateUnit(): Promise<number> {
       const { data: unit, error } = await supabase.from('units').update({
@@ -83,7 +87,6 @@ export const useUnitStore = defineStore('unit', {
       const { data, error } = await supabase.from('units').delete().eq('id', this.unit.id);
       if (data) {
         this.newUnit();
-        this.units.length = 0;
       }
       if (error) {
         alert(error.details);
@@ -97,10 +100,13 @@ export const useUnitStore = defineStore('unit', {
         content: "",
         image: null,
         live: false,
+        order: 0,
+        tag: [],
         main_key: null,
         course: 0,
         updated_at: null,
       } as Unit;
+      this.units.length = 0;
     },
     async pullUnitList(searchText: string) {
       const { data: units, error } = await supabase.from('units').select().ilike("name", `%${searchText}%`);
@@ -116,16 +122,19 @@ export const useUnitStore = defineStore('unit', {
       }
     },
     async load(id: number) {
+      console.log('pulling course from SB');
       const { data: unit, error } = await supabase.from('units').select(`
         id,name,content,
         lessons ( * ),
-        course ( id, name )
+        course ( id, name, owner, live )
         `).eq('id', id).single();
       if (unit) {
         this.courseID = unit.course?.id;
         this.courseName = unit.course?.name;
+        this.courseOwner = unit.course?.owner;
         delete unit.course;
         this.unit = unit;
+        console.log('pulled course from SB');
       }
       if (error) console.log(error);
     },

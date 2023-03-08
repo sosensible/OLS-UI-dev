@@ -117,8 +117,11 @@ export interface Database {
           content: string | null
           created_at: string | null
           id: number
+          live: boolean | null
           main_key: number | null
           name: string | null
+          order: number | null
+          tag: string[] | null
           type: string | null
           unit: number | null
           updated_at: string | null
@@ -127,8 +130,11 @@ export interface Database {
           content?: string | null
           created_at?: string | null
           id?: number
+          live?: boolean | null
           main_key?: number | null
           name?: string | null
+          order?: number | null
+          tag?: string[] | null
           type?: string | null
           unit?: number | null
           updated_at?: string | null
@@ -137,8 +143,11 @@ export interface Database {
           content?: string | null
           created_at?: string | null
           id?: number
+          live?: boolean | null
           main_key?: number | null
           name?: string | null
+          order?: number | null
+          tag?: string[] | null
           type?: string | null
           unit?: number | null
           updated_at?: string | null
@@ -220,6 +229,8 @@ export interface Database {
           live: boolean | null
           main_key: number | null
           name: string | null
+          order: number | null
+          tag: string[] | null
           updated_at: string | null
         }
         Insert: {
@@ -231,6 +242,8 @@ export interface Database {
           live?: boolean | null
           main_key?: number | null
           name?: string | null
+          order?: number | null
+          tag?: string[] | null
           updated_at?: string | null
         }
         Update: {
@@ -242,6 +255,8 @@ export interface Database {
           live?: boolean | null
           main_key?: number | null
           name?: string | null
+          order?: number | null
+          tag?: string[] | null
           updated_at?: string | null
         }
       }

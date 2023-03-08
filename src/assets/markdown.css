@@ -1,0 +1,7 @@
+.markdown>table {
+  min-width: 100%;
+}
+
+.markdown>table>thead>tr>th {
+  border-bottom: 1px solid;
+}

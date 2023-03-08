@@ -1,42 +1,64 @@
-<template>
-  <!---
-    <h1>{{ lessonStore.lesson.units.courses.name }}</h1>
-  
-    {{ lessonStore.lesson.units.name }}: {{ lessonStore.lesson.name }}
-    <button @click="editLesson(lessonStore.lesson)">Edit</button>
-  -->
-  <h1>{{ lessonStore.courseName }}</h1>
-  <h2>
-    {{ lessonStore.unitName }}: {{ lessonStore.lesson.name }}
-  </h2>
-  <p>Details</p>
-</template>
-
 <script setup lang="ts">
 import router from '@/router';
-import { useLessonStore } from '@/stores/lesson';
+import { useLessonStore, type Lesson } from '@/stores/lesson';
+import { useUserStore } from '@/stores/user';
+import { computed } from 'vue';
+import Markdown from 'vue3-markdown-it';
 
 const props = defineProps({
   id: String,
-  action: String,
-  lesson_id: String,
-  unit_id: String,
-  course_id: String,
+  action: String
 });
-
 const lessonStore = useLessonStore();
-// add "add" logic later
+const userStore = useUserStore();
 lessonStore.load(+props.id);
 
-const editLesson = (targetLesson) => {
-  alert('edit ' + targetLesson.name);
+const editLesson = (targetLesson: Lesson | { id: string }, action: string) => {
+  router.push({ name: 'olsLessonEdit', params: { id: targetLesson.id, action: action, unit_id: lessonStore.unitID } });
 }
-/*
- OR ((live = true) AND (unit IN ( SELECT units.id
-   FROM (((units
-     JOIN courses ON ((courses.id = units.course)))
-     JOIN enrollments ON ((enrollments.course = courses.id)))
-     JOIN students ON ((students.id = enrollments.student)))
-  WHERE (auth.uid() = students.person))))
-  */
+
+const deleteLesson = () => {
+  lessonStore.deleteLesson();
+  router.push({ name: 'olsUnit', params: { id: props.unit_id } });
+}
+
+const isOwner = computed(() => {
+  const userIDSet = userStore.user?.id ? true : false;
+  const lessonOwnerSet = lessonStore.courseOwner ? true : false;
+  return userIDSet && lessonOwnerSet && lessonStore.courseOwner == userStore.user.id;
+});
 </script>
+
+<template>
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <RouterLink to="/learn">Courses</RouterLink>
+      </li>
+      <li class="breadcrumb-item">
+        <RouterLink :to="{ name: 'olsCourse', params: { id: lessonStore.getCourseID } }">{{ lessonStore.courseName }}
+        </RouterLink>
+      </li>
+      <li class="breadcrumb-item">
+        <RouterLink :to="{ name: 'olsCourse', params: { id: lessonStore.getUnitID } }">{{ lessonStore.unitName }}
+        </RouterLink>
+      </li>
+      <li class="breadcrumb-item active" aria-current="page">{{ lessonStore.lesson?.name }}</li>
+    </ol>
+  </nav>
+  <h1>{{ lessonStore.courseName }}</h1>
+  <h2>{{ lessonStore.unitName ? lessonStore.unitName : '(Unit Name)' }}</h2>
+  <h3>Lesson ({{ lessonStore.lesson?.name }})</h3>
+
+  id: {{ lessonStore.lesson?.id }}<br />
+  Status: {{ lessonStore.lesson?.live ? "live" : "draft" }}<br />
+  <p>
+    <Markdown :source="lessonStore.lesson.content" class="markdown" />
+  </p>
+
+  <div class="p-2">
+    <button @click="editLesson(lessonStore.lesson, 'edit')" class="btn btn-primary" v-if="isOwner">Edit Lesson</button>
+    &nbsp;
+    <button @click="deleteLesson()" class="btn btn-primary" v-if="isOwner">Delete Lesson</button>
+  </div>
+</template>
