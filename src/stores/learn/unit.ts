@@ -124,7 +124,7 @@ export const useUnitStore = defineStore('unit', {
     async load(id: number) {
       console.log('pulling course from SB');
       const { data: unit, error } = await supabase.from('units').select(`
-        id,name,content,
+        id,name,content, live,
         lessons ( * ),
         course ( id, name, owner, live )
         `).eq('id', id).single();

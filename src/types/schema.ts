@@ -95,6 +95,7 @@ export interface Database {
           created_at: string | null
           id: number
           student: number | null
+          tags: string[] | null
           updated_at: string | null
         }
         Insert: {
@@ -102,6 +103,7 @@ export interface Database {
           created_at?: string | null
           id?: number
           student?: number | null
+          tags?: string[] | null
           updated_at?: string | null
         }
         Update: {
@@ -109,6 +111,39 @@ export interface Database {
           created_at?: string | null
           id?: number
           student?: number | null
+          tags?: string[] | null
+          updated_at?: string | null
+        }
+      }
+      lesson_content: {
+        Row: {
+          content: string | null
+          created_at: string | null
+          id: number
+          lesson: number | null
+          order: number
+          tags: string[] | null
+          type: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string | null
+          id?: number
+          lesson?: number | null
+          order?: number
+          tags?: string[] | null
+          type?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          content?: string | null
+          created_at?: string | null
+          id?: number
+          lesson?: number | null
+          order?: number
+          tags?: string[] | null
+          type?: string | null
           updated_at?: string | null
         }
       }

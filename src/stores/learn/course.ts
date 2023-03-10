@@ -146,8 +146,8 @@ export const useCourseStore = defineStore('course', {
     },
     async load(id: number) {
       const { data: course, error } = await supabase.from('courses').select(`
-        id, name, detail, live,
-        units ( id, name, live ),
+        id, name, detail, live, image,
+        units ( id, name, live, image ),
         owner ( id, full_name )
         `).eq('id', id).single();
       // @ts-ignore
@@ -157,8 +157,17 @@ export const useCourseStore = defineStore('course', {
     async import() {
       // stuff
     },
-    async export() {
-      // stuff
+    async export(id: number) {
+      const { data: course, error } = await supabase.from('courses').select(`
+        *,
+        units ( *, lessons ( *, lesson_content ( * ) ) )
+        `).eq('id', id).single();
+      if (course) {
+        console.log('export course', course);
+      }
+      if (error) {
+        console.log(error);
+      }
     }
   }
 })

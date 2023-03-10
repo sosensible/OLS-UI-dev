@@ -3,13 +3,16 @@ import router from '@/router';
 import type { Course } from '@/stores/learn/course';
 import type { Unit } from '@/stores/learn/unit';
 import { useCourseStore } from '@/stores/learn/course';
+import { useUserStore } from '@/stores/user';
 import Markdown from 'vue3-markdown-it';
+import { computed } from 'vue';
 
 const props = defineProps({
   id: String,
   action: String,
 });
 const courseStore = useCourseStore();
+const userStore = useUserStore();
 
 if (props.id != '0') {
   courseStore.load(+props.id);
@@ -40,6 +43,12 @@ const editUnit = (targetunit: Unit | { id: string }, action: string) => {
 const viewUnit = (targetunit: Unit | { id: string }) => {
   router.push({ name: 'olsUnit', params: { id: targetunit.id } });
 }
+
+const isOwner = computed(() => {
+  const userIDSet = userStore.user?.id ? true : false;
+  const courseOwnerSet = courseStore.course?.owner?.id ? true : false;
+  return userIDSet && courseOwnerSet && courseStore.course?.owner?.id == userStore.user.id;
+});
 </script>
 
 <template>
@@ -81,6 +90,10 @@ const viewUnit = (targetunit: Unit | { id: string }) => {
   <br>
   <div class="p-2">
     <button @click="editUnit({ id: 0 }, 'add')" class="btn btn-primary">Add Unit</button>
+  </div>
+  <br>
+  <div class="p-2" v-if="isOwner">
+    <button @click="courseStore.export(+props.id)" class="btn btn-primary">Export Course</button>
   </div>
 </template>
 

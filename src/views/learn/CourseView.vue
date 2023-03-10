@@ -55,11 +55,7 @@ const isOwner = computed(() => {
   <h1>{{ courseStore.course.name }}</h1>
   <p>
     by: {{ courseStore.course?.owner?.full_name }}<br />
-    Status: {{ courseStore.course?.live ? "live" : "draft" }}<br />
-    Owner: {{ isOwner }}<br />
-    userID: {{ userStore.user.id }}<br />
-    courseOwner: {{ courseStore.course?.owner?.id }}<br />
-    Units: {{ courseStore.activeUnitList() }}<br />
+    <span v-if="isOwner">Status: {{ courseStore.course?.live ? "live" : "draft" }}<br /></span>
   </p>
   <p>
     <Markdown :source="courseStore.course.detail" class="markdown" />
@@ -81,6 +77,9 @@ const isOwner = computed(() => {
           <h2>{{ unit.name }}...{{ unit.live }}</h2>
         </div>
         <div class="card-body">
+          <div>
+            <img :src="'/img/' + courseStore.course?.id + '/' + unit.image" class="promo-img">
+          </div>
           <p>Details...</p>
         </div>
         <div class="card-footer">
@@ -96,5 +95,15 @@ const isOwner = computed(() => {
 </template>
 
 <style>
-@import '@/assets/markdown'
+@import '@/assets/markdown';
+
+.card .promo-img {
+  width: auto !important;
+  /*override the width below*/
+  width: 100%;
+  max-width: 100%;
+  float: left;
+  clear: both;
+  /* width: -webkit-fill-available; */
+}
 </style>

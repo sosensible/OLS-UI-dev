@@ -2,7 +2,7 @@
 import router from '@/router';
 import { useLessonStore, type Lesson } from '@/stores/learn/lesson';
 import { useUserStore } from '@/stores/user';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import Markdown from 'vue3-markdown-it';
 
 const props = defineProps({
@@ -11,6 +11,7 @@ const props = defineProps({
 });
 const lessonStore = useLessonStore();
 const userStore = useUserStore();
+
 lessonStore.load(+props.id);
 
 const editLesson = (targetLesson: Lesson | { id: string }, action: string) => {
@@ -27,6 +28,10 @@ const isOwner = computed(() => {
   const lessonOwnerSet = lessonStore.courseOwner ? true : false;
   return userIDSet && lessonOwnerSet && lessonStore.courseOwner == userStore.user.id;
 });
+
+const showContent = (lessonContent: number) => {
+  lessonStore.activeLessonContent = lessonContent;
+}
 </script>
 
 <template>
@@ -40,7 +45,7 @@ const isOwner = computed(() => {
         </RouterLink>
       </li>
       <li class="breadcrumb-item">
-        <RouterLink :to="{ name: 'olsCourse', params: { id: lessonStore.getUnitID } }">{{ lessonStore.unitName }}
+        <RouterLink :to="{ name: 'olsUnit', params: { id: lessonStore.getUnitID } }">{{ lessonStore.unitName }}
         </RouterLink>
       </li>
       <li class="breadcrumb-item active" aria-current="page">{{ lessonStore.lesson?.name }}</li>
@@ -55,6 +60,15 @@ const isOwner = computed(() => {
   <p>
     <Markdown :source="lessonStore.lesson.content" class="markdown" />
   </p>
+  <hr>
+  <ul class="nav nav-tabs">
+    <li v-for="lesson in lessonStore.lesson.lesson_content" class="nav-item">
+      <a class="nav-link" @click="showContent(lesson.id)">{{ lesson.alt_name }}</a>
+    </li>
+  </ul>
+  <div class="mt-2">
+    <Markdown :source="lessonStore.getActiveLessonContent" class="markdown" xv-if="lesson.type == 'markdown'" />
+  </div>
 
   <div class="p-2">
     <button @click="editLesson(lessonStore.lesson, 'edit')" class="btn btn-primary" v-if="isOwner">Edit Lesson</button>

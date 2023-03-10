@@ -9,11 +9,12 @@ interface LessonState {
   lesson: Lesson | null;
   lessons: Lesson[];
   unitID: number | null;
-  unitName: string,
+  unitName: string;
   courseID: number | null;
-  courseName: string,
-  courseOwner: string,
+  courseName: string;
+  courseOwner: string;
   listPulled: boolean;
+  activeLessonContent: number | null;
 }
 
 export const useLessonStore = defineStore('lesson', {
@@ -38,6 +39,7 @@ export const useLessonStore = defineStore('lesson', {
     courseName: "",
     courseOwner: "",
     listPulled: false,
+    activeLessonContent: 0,
   }),
   getters: {
     getCourseID(state) {
@@ -51,6 +53,17 @@ export const useLessonStore = defineStore('lesson', {
     },
     getLessonList(state) {
       return state.lessons;
+    },
+    getActiveLessonContent(state): string {
+      let item = { content: "" };
+      if (state.lesson?.lesson_content?.length) {
+        // @ts-ignore
+        item = state.lesson.lesson_content.find(o => o.id === state.activeLessonContent);
+      }
+      console.log('lesson', state.lesson);
+      console.log('lesson_content/length', state.lesson.lesson_content);
+      console.log('item', item);
+      return item.content ? item.content : "";
     }
   },
   actions: {
@@ -111,6 +124,17 @@ export const useLessonStore = defineStore('lesson', {
       }
       if (error) alert(error.details);
     },
+    addLessonContentSection() {
+      // todo
+    },
+    async deleteLessonContent(lessonContent) {
+      const { data, error } = await supabase.from('lesson-content').delete().eq('id', this.lesson.id);
+      if (data) {
+        // this.newLesson();
+        // this.lessons.length = 0;
+      }
+      if (error) alert(error.details);
+    },
     newLesson() {
       this.lesson = {
         created_at: null,
@@ -143,8 +167,10 @@ export const useLessonStore = defineStore('lesson', {
       this.lesson?.id
     },
     async load(id: number) {
+      this.activeLessonContent = 0;
       const { data: lesson, error } = await supabase.from('lessons').select(`
-        id, name, content,
+        id, name, content, live,
+        lesson_content( id, alt_name, content, type, tags ),
         units( id, name, courses ( id, name, owner ))
         `).eq('id', id).single();
       if (lesson) {
@@ -155,6 +181,7 @@ export const useLessonStore = defineStore('lesson', {
         this.courseOwner = lesson.units.courses.owner;
         delete lesson.units;
         this.lesson = lesson;
+        if (lesson?.lesson_content?.length) this.activeLessonContent = lesson.lesson_content[0].id;
       }
       if (error) console.log(error);
     },
