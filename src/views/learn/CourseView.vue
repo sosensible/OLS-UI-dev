@@ -4,7 +4,6 @@ import type { Unit } from '@/stores/learn/unit';
 import { useCourseStore, type Course } from '@/stores/learn/course';
 import { useUserStore } from '@/stores/user';
 import Markdown from 'vue3-markdown-it';
-import { computed } from 'vue';
 
 import OLSCard from '@/components/ols/OLSCard.vue';
 

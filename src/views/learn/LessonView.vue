@@ -3,7 +3,7 @@ import router from '@/router';
 import { useLessonStore, type Lesson } from '@/stores/learn/lesson';
 import { useUserStore } from '@/stores/user';
 import { computed, ref } from 'vue';
-import Markdown from 'vue3-markdown-it';
+import OLSContent from '../../components/ols/OLSContent.vue';
 
 const props = defineProps({
   id: String,
@@ -67,7 +67,7 @@ const showContent = (lessonContent: number) => {
     </li>
   </ul>
   <div class="mt-2">
-    <Markdown :source="lessonStore.getActiveLessonContent" class="markdown" xv-if="lesson.type == 'markdown'" />
+    <OLSContent :content="lessonStore.getActiveLessonContent" :type="lessonStore.getActiveContentType" />
   </div>
 
   <div class="p-2">

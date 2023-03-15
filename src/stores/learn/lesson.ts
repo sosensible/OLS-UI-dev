@@ -5,6 +5,7 @@ import { useUserStore } from '../user';
 
 export type Lesson = Database['public']['Tables']['lessons']['Row']
 export type LessonContent = Database['public']['Tables']['lesson_content']['Row']
+export type LessonContentInsert = Database['public']['Tables']['lesson_content']['Insert']
 
 interface LessonState {
   lesson: Lesson | null;
@@ -65,45 +66,93 @@ export const useLessonStore = defineStore('lesson', {
         // @ts-ignore
         item = state.lesson.lesson_content.find(o => o.id === state.activeLessonContent);
       }
-      console.log('lesson', state.lesson);
-      console.log('lesson_content/length', state.lesson.lesson_content);
-      console.log('item', item);
-      return item.content ? item.content : "";
+      return item?.content ? item?.content : "";
+    },
+    getActiveContentType(state): string {
+      let item = { type: "" };
+      if (state.lesson?.lesson_content?.length) {
+        // @ts-ignore
+        item = state.lesson.lesson_content.find(o => o.id === state.activeLessonContent);
+      }
+      return item?.type ? item?.type : "";
+      return 'markdown';
     }
   },
   actions: {
     async insertLesson(unitID: number): Promise<number> {
-      console.log('unit insertLesson run');
       const { data: lesson, error } = await supabase.from('lessons').insert({
         name: this.lesson?.name,
-        content: this.lesson?.content,
+        shortDesc: this.lesson?.shortDesc,
         live: this.lesson?.live,
         unit: unitID,
       }).select().single();
       if (lesson) {
         // @ts-ignore
         this.lesson.id = lesson.id;
-        console.log(lesson);
+        this.storeLessonContent();
       }
       if (error) console.log(error);
       return this.lesson.id;
     },
     async updateLesson(): Promise<number> {
+      console.log('updating lesson');
       const { data: lesson, error } = await supabase.from('lessons').update({
         name: this.lesson?.name,
-        content: this.lesson?.content,
+        shortDesc: this.lesson?.shortDesc,
         live: this.lesson?.live,
       })
         .eq('id', this.lesson?.id)
         .select().single();
       if (lesson) {
-        // @ts-ignore
-        this.lesson.id = lesson.id;
+        console.log('lesson updated:', lesson)
+        if (this.lesson?.id === lesson.id && this.lesson_content.length) await this.storeLessonContent();
         this.lessons.length = 0;
       }
       if (error) console.log(error);
       // @ts-ignore
       return this.lesson?.id;
+    },
+    async storeLessonContent() {
+      this.lesson_content.forEach((lc) => {
+        if (lc.id > 0) {
+          alert('update item id ' + lc.alt_name);
+          this.updateLessonContent(lc);
+        } else {
+          alert('insert item ' + lc.alt_name);
+          this.insertLessonContent(lc);
+        }
+      });
+    },
+    async insertLessonContent(lc: LessonContentInsert) {
+      console.log('inserting lesson content');
+      const { data: lesson_content, error } = await supabase.from('lesson_content').insert({
+        alt_name: lc.alt_name,
+        content: lc.content,
+        tags: lc.tags,
+        type: lc.type,
+        lesson: this.lesson?.id,
+      }).select().single();
+      if (lesson_content) lc.id = lesson_content.id;
+      if (error) console.log(error);
+    },
+    async updateLessonContent(lc) {
+      console.log('updating lesson content');
+      const { data: lesson_content, error } = await supabase.from('lesson_content').update({
+        alt_name: lc.alt_name,
+        content: lc.content,
+        tags: lc.tags,
+        type: lc.type,
+        lesson: this.lesson?.id,
+      }).eq('id', lc.id).select().single();
+      if (lesson_content) lc.id = lesson_content.id;
+      if (error) console.log(error);
+    },
+    async deleteLessonContent(id) {
+      const { data, error } = await supabase.from('lesson_content').delete().eq('id', id);
+      if (data) {
+        // shift to first remaining lesson, if one exists
+      }
+      if (error) alert(error.details);
     },
     async deleteLesson() {
       const { data, error } = await supabase.from('lessons').delete().eq('id', this.lesson.id);
@@ -113,7 +162,7 @@ export const useLessonStore = defineStore('lesson', {
       }
       if (error) alert(error.details);
     },
-    addLessonContentSection() {
+    addLessonContentSection(): Number {
       const newContent = {
         "id": --this.content_id,
         "alt_name": "Rename" + this.content_id,
@@ -122,14 +171,7 @@ export const useLessonStore = defineStore('lesson', {
         "tags": null
       };
       this.lesson_content.push(newContent);
-    },
-    async deleteLessonContent(lessonContent) {
-      const { data, error } = await supabase.from('lesson-content').delete().eq('id', this.lesson.id);
-      if (data) {
-        // this.newLesson();
-        // this.lessons.length = 0;
-      }
-      if (error) alert(error.details);
+      return this.content_id;
     },
     newLesson() {
       this.lesson = {
@@ -146,6 +188,7 @@ export const useLessonStore = defineStore('lesson', {
         updated_at: null,
         shortDesc: "",
       } as Lesson;
+      this.lesson_content.length = 0;
     },
     async pullLessonList(searchText: string) {
       const { data: lessons, error } = await supabase.from('lessons').select().ilike("name", `%${searchText}%`);

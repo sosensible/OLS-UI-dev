@@ -1,8 +1,10 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import router from '@/router';
 import type { Lesson } from '@/stores/learn/lesson';
 import { useUnitStore, type Unit } from '@/stores/learn/unit';
 import { useCourseStore } from '@/stores/learn/course';
+import { useUserStore } from '@/stores/user';
 import Markdown from 'vue3-markdown-it';
 
 const props = defineProps({
@@ -12,7 +14,7 @@ const props = defineProps({
 });
 const courseStore = useCourseStore();
 const unitStore = useUnitStore();
-// unitStore.load(+props.id);
+const userStore = useUserStore();
 
 if (props.id != '0') {
   unitStore.load(+props.id);
@@ -37,6 +39,11 @@ const deleteUnit = () => {
   unitStore.deleteUnit();
   router.push({ name: 'olsCourse', params: { id: props.course_id } });
 }
+
+const isOwner = computed(() => {
+  const userIDSet = userStore.user?.id ? true : false;
+  return userIDSet && userStore.user?.id == unitStore.courseOwner;
+});
 
 const editLesson = (targetLesson: Lesson | { id: string }, action: string) => {
   router.push({ name: 'olsLessonEdit', params: { id: targetLesson.id, action: action, unit_id: unitStore.unit?.id } });
@@ -94,10 +101,12 @@ const viewLesson = (targetLesson: Unit | { id: string }, action?: string) => {
     <button @click="deleteUnit()" class="btn btn-primary">Delete Unit</button>
   </div>
   <hr>
-  <div v-for="lesson in unitStore.unit?.lessons" :key="lesson.id">
+  <div v-for="lesson in unitStore.sortedLessons" :key="lesson.id" class="mb-3">
     <h2>{{ lesson.name }}</h2>
     <p>{{ lesson.shortDesc }}</p>
     <button @click="viewLesson(lesson)" class="btn btn-primary">View Lesson</button>
+    &nbsp;
+    <button @click="editLesson(lesson, 'edit')" class="btn btn-primary" v-if="isOwner">Edit Lesson</button>
   </div>
   <button @click="editLesson({ id: '0' }, 'add')" class="btn btn-primary">Add Lesson</button>
 </template>

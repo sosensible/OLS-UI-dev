@@ -56,21 +56,24 @@ export const useUnitStore = defineStore('unit', {
         return true;
       }
       return false;
+    },
+    sortedLessons(state) {
+      return state.unit?.lessons?.sort((a, b) => (a.order > b.order) ? 1 : (a.order < b.order) ? -1 : 0);
     }
   },
   actions: {
     async insertUnit(courseID: number): Promise<number> {
-      console.log('unit insertUnit run')
       const { data: unit, error } = await supabase.from('units').insert({
         name: this.unit?.name,
         content: this.unit?.content,
+        shortDesc: this.unit?.shortDesc,
+        image: this.unit?.image,
         live: this.unit?.live,
         course: courseID,
       }).select().single();
       if (unit) {
         // @ts-ignore
         this.unit.id = unit.id
-        console.log(unit);
       }
       if (error) { console.log(error) }
       return this.unit.id;
@@ -79,6 +82,8 @@ export const useUnitStore = defineStore('unit', {
       const { data: unit, error } = await supabase.from('units').update({
         name: this.unit?.name,
         content: this.unit?.content,
+        shortDesc: this.unit?.shortDesc,
+        image: this.unit?.image,
         live: this.unit?.live,
       })
         .eq('id', this.unit?.id)
@@ -86,7 +91,6 @@ export const useUnitStore = defineStore('unit', {
       if (unit) {
         // @ts-ignore
         this.unit.id = unit.id
-        console.log(unit);
         this.units.length = 0;
       }
       if (error) { console.log(error) }
@@ -133,7 +137,6 @@ export const useUnitStore = defineStore('unit', {
       }
     },
     async load(id: number) {
-      console.log('pulling course from SB');
       const { data: unit, error } = await supabase.from('units').select(`
         id,name,content,live,image,shortDesc,
         lessons ( * ),
@@ -145,7 +148,6 @@ export const useUnitStore = defineStore('unit', {
         this.courseOwner = unit.course?.owner;
         delete unit.course;
         this.unit = unit;
-        console.log('pulled course from SB');
       }
       if (error) console.log(error);
     },

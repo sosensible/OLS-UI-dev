@@ -4,7 +4,6 @@ import { useLessonStore, type Lesson } from '@/stores/learn/lesson';
 import { useUnitStore, type Unit } from '@/stores/learn/unit';
 import Markdown from 'vue3-markdown-it';
 
-
 const props = defineProps({
   id: String,
   action: String,
@@ -28,7 +27,7 @@ const editLesson = async (targetLesson: Lesson) => {
   } else {
     lid = await lessonStore.updateLesson();
   }
-  router.push({ name: 'olsLesson', params: { id: lid } });
+  // router.push({ name: 'olsLesson', params: { id: lid } });
 }
 
 const deleteLesson = () => {
@@ -48,6 +47,11 @@ const editLessonContent = (targetLessonContent: LessonContent) => {
 
 const deleteLessonContent = (id: string) => {
   lessonStore.deleteLessonContent(id);
+}
+
+const addLessonContent = () => {
+  const newLesson = lessonStore.addLessonContentSection();
+  showContent(newLesson);
 }
 
 const showContent = (lessonContent: number) => {
@@ -75,13 +79,13 @@ const showContent = (lessonContent: number) => {
         placeholder="Enter lesson short description here" id="lessonShortDesc" style="height: 100px"></textarea>
       <label for="lessonShortDesc">Lesson Short Description</label>
     </div>
-    <h3 class="mt-3">( content items )</h3>
+    <h3 class="mt-3">Content ( variations )</h3>
     <ul class="nav nav-tabs">
       <li v-for="lesson in lessonStore.lesson_content" class="nav-item">
         <a class="nav-link" @click="showContent(lesson.id)">{{ lesson.alt_name }}</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" @click="lessonStore.addLessonContentSection()">(Add Content)</a>
+        <a class="nav-link" @click="addLessonContent()">(Add Content)</a>
       </li>
     </ul>
     <div v-for="lesson in lessonStore.lesson_content" class="tab-content" :id="'lesson-content-' + lesson.id">
@@ -109,6 +113,8 @@ const showContent = (lessonContent: number) => {
         </div>
         <hr>
         <Markdown :source="lesson.content" class="markdown" v-if="lesson.type == 'markdown'" />
+        <button @click="deleteLessonContent(lesson.id)" class="btn btn-primary mb-3">Delete Content ({{ lesson.alt_name
+        }})</button>
       </div>
     </div>
   </form>

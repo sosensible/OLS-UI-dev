@@ -7,6 +7,8 @@ import { useCourseStore } from '@/stores/learn/course';
 import { useUserStore } from '@/stores/user';
 import Markdown from 'vue3-markdown-it';
 
+import OLSCard from '@/components/ols/OLSCard.vue';
+
 const props = defineProps({
   id: String,
   action: String,
@@ -21,8 +23,6 @@ if (props.id != '0') {
 } else {
   unitStore.newUnit();
 }
-
-// if (+props.course_id != courseStore.course?.id) courseStore.load(+props.course_id);
 
 const editUnit = (targetUnit: Unit, action: string) => {
   console.log('target unit', targetUnit)
@@ -63,10 +63,18 @@ const viewLesson = (targetLesson: Unit | { id: string }, action?: string) => {
     </ol>
   </nav>
   <h1>{{ unitStore.courseName }}</h1>
-  <h2>{{ unitStore.unit?.name }}</h2>
-
-  id: {{ unitStore.unit?.id }}<br />
-  Status: {{ unitStore.unit?.live ? "live" : "draft" }}<br />
+  <div>
+    id: {{ unitStore.unit?.id }}<br />
+    Status: {{ unitStore.unit?.live ? "live" : "draft" }}<br />
+    <div class="row pl-3 mr-d">
+      <div class="col-sm-6 mb-3 mr-3">
+        <OLSCard :header="unitStore.unit?.name"
+          :image="'/course/' + unitStore.courseID + '/img/' + unitStore.unit?.image">
+          {{ unitStore.unit?.shortDesc }}
+        </OLSCard>
+      </div>
+    </div>
+  </div>
   <p>
     <Markdown :source="unitStore.unit.content" class="markdown" />
   </p>
@@ -79,7 +87,7 @@ const viewLesson = (targetLesson: Unit | { id: string }, action?: string) => {
       Unit</button>
   </div>
   <h3>Lessons</h3>
-  <div v-for="lesson in unitStore.unit?.lessons" :key="lesson.id">
+  <div v-for="lesson in unitStore.unit?.lessons" :key="lesson.id" class="mb-3">
     <h2>{{ lesson.name }}</h2>
     <p>{{ lesson.shortDesc }}</p>
     <button @click="viewLesson(lesson)" class="btn btn-primary">View Lesson</button>
