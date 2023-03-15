@@ -57,8 +57,8 @@ const showContent = (lessonContent: number) => {
 
   id: {{ lessonStore.lesson?.id }}<br />
   Status: {{ lessonStore.lesson?.live ? "live" : "draft" }}<br />
-  <p>
-    <Markdown :source="lessonStore.lesson.content" class="markdown" />
+  <p v-if="isOwner">
+    {{ lessonStore.lesson.shortDesc }}
   </p>
   <hr>
   <ul class="nav nav-tabs">

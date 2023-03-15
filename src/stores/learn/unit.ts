@@ -28,6 +28,7 @@ const unitDefault = {
   main_key: null,
   course: 0,
   updated_at: null,
+  shortDesc: "",
 } as Unit
 
 export const useUnitStore = defineStore('unit', {
@@ -46,6 +47,15 @@ export const useUnitStore = defineStore('unit', {
     },
     getCourseId(state) {
       return state.courseID ? state.courseID : 0;
+    },
+    isOwner(state) {
+      const userStore = useUserStore();
+      const userIDSet = userStore.user?.id ? true : false;
+      const courseOwnerSet = state.courseOwner ? true : false;
+      if (userStore.isLoggedIn && userIDSet && courseOwnerSet && state.courseOwner == userStore.user.id) {
+        return true;
+      }
+      return false;
     }
   },
   actions: {
@@ -105,6 +115,7 @@ export const useUnitStore = defineStore('unit', {
         main_key: null,
         course: 0,
         updated_at: null,
+        shortDesc: ""
       } as Unit;
       this.units.length = 0;
     },
@@ -124,7 +135,7 @@ export const useUnitStore = defineStore('unit', {
     async load(id: number) {
       console.log('pulling course from SB');
       const { data: unit, error } = await supabase.from('units').select(`
-        id,name,content, live,
+        id,name,content,live,image,shortDesc,
         lessons ( * ),
         course ( id, name, owner, live )
         `).eq('id', id).single();

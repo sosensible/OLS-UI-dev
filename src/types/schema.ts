@@ -44,6 +44,7 @@ export interface Database {
           main_key: number | null
           name: string | null
           owner: string | null
+          shortDesc: string
           updated_at: string | null
         }
         Insert: {
@@ -55,6 +56,7 @@ export interface Database {
           main_key?: number | null
           name?: string | null
           owner?: string | null
+          shortDesc?: string
           updated_at?: string | null
         }
         Update: {
@@ -66,6 +68,7 @@ export interface Database {
           main_key?: number | null
           name?: string | null
           owner?: string | null
+          shortDesc?: string
           updated_at?: string | null
         }
       }
@@ -117,6 +120,7 @@ export interface Database {
       }
       lesson_content: {
         Row: {
+          alt_name: string | null
           content: string | null
           created_at: string | null
           id: number
@@ -127,6 +131,7 @@ export interface Database {
           updated_at: string | null
         }
         Insert: {
+          alt_name?: string | null
           content?: string | null
           created_at?: string | null
           id?: number
@@ -137,6 +142,7 @@ export interface Database {
           updated_at?: string | null
         }
         Update: {
+          alt_name?: string | null
           content?: string | null
           created_at?: string | null
           id?: number
@@ -149,39 +155,39 @@ export interface Database {
       }
       lessons: {
         Row: {
-          content: string | null
           created_at: string | null
           id: number
           live: boolean | null
           main_key: number | null
           name: string | null
           order: number | null
+          shortDesc: string | null
           tag: string[] | null
           type: string | null
           unit: number | null
           updated_at: string | null
         }
         Insert: {
-          content?: string | null
           created_at?: string | null
           id?: number
           live?: boolean | null
           main_key?: number | null
           name?: string | null
           order?: number | null
+          shortDesc?: string | null
           tag?: string[] | null
           type?: string | null
           unit?: number | null
           updated_at?: string | null
         }
         Update: {
-          content?: string | null
           created_at?: string | null
           id?: number
           live?: boolean | null
           main_key?: number | null
           name?: string | null
           order?: number | null
+          shortDesc?: string | null
           tag?: string[] | null
           type?: string | null
           unit?: number | null
@@ -265,6 +271,7 @@ export interface Database {
           main_key: number | null
           name: string | null
           order: number | null
+          shortDesc: string | null
           tag: string[] | null
           updated_at: string | null
         }
@@ -278,6 +285,7 @@ export interface Database {
           main_key?: number | null
           name?: string | null
           order?: number | null
+          shortDesc?: string | null
           tag?: string[] | null
           updated_at?: string | null
         }
@@ -291,6 +299,7 @@ export interface Database {
           main_key?: number | null
           name?: string | null
           order?: number | null
+          shortDesc?: string | null
           tag?: string[] | null
           updated_at?: string | null
         }

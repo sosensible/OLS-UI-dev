@@ -70,16 +70,21 @@ const showContent = (lessonContent: number) => {
       <label for="lessonName">Name</label>
       <div id="lessonNameHelp" class="form-text">The lesson name needs to be unique for the unit.</div>
     </div>
+    <div class="form-floating mt-2">
+      <textarea v-model="lessonStore.lesson.shortDesc" class="form-control"
+        placeholder="Enter lesson short description here" id="lessonShortDesc" style="height: 100px"></textarea>
+      <label for="lessonShortDesc">Lesson Short Description</label>
+    </div>
     <h3 class="mt-3">( content items )</h3>
     <ul class="nav nav-tabs">
-      <li v-for="lesson in lessonStore.lesson.lesson_content" class="nav-item">
+      <li v-for="lesson in lessonStore.lesson_content" class="nav-item">
         <a class="nav-link" @click="showContent(lesson.id)">{{ lesson.alt_name }}</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" @click="addLessonContentSection()">(Add Content)</a>
+        <a class="nav-link" @click="lessonStore.addLessonContentSection()">(Add Content)</a>
       </li>
     </ul>
-    <div v-for="lesson in lessonStore.lesson.lesson_content" class="tab-content" :id="'lesson-content-' + lesson.id">
+    <div v-for="lesson in lessonStore.lesson_content" class="tab-content" :id="'lesson-content-' + lesson.id">
       <div v-if="lesson.id == lessonStore.activeLessonContent" class="mt-2">
         <div class="mb-3">
           Tags: <a v-for="tag in lesson.tags" class="btn btn-primary btn-sm me-2">{{ tag }}</a>

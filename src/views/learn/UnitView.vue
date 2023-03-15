@@ -81,7 +81,7 @@ const viewLesson = (targetLesson: Unit | { id: string }, action?: string) => {
   <h3>Lessons</h3>
   <div v-for="lesson in unitStore.unit?.lessons" :key="lesson.id">
     <h2>{{ lesson.name }}</h2>
-    <p>Details</p>
+    <p>{{ lesson.shortDesc }}</p>
     <button @click="viewLesson(lesson)" class="btn btn-primary">View Lesson</button>
     &nbsp;
     <button @click="editLesson(lesson, 'edit')" class="btn btn-primary" v-if="isOwner">Edit Lesson</button>

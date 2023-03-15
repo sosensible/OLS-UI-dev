@@ -27,6 +27,7 @@ const courseDefault = {
   main_key: null,
   owner: null,
   updated_at: null,
+  shortDesc: "",
 } as Course;
 
 export const useCourseStore = defineStore('course', {
@@ -51,6 +52,15 @@ export const useCourseStore = defineStore('course', {
           return false;
         }
       }
+    },
+    isOwner(state) {
+      const userStore = useUserStore();
+      const userIDSet = userStore.user?.id ? true : false;
+      const courseOwnerSet = state.course?.owner ? true : false;
+      if (userStore.isLoggedIn && userIDSet && courseOwnerSet && state.course?.owner?.id == userStore.user.id) {
+        return true;
+      }
+      return false;
     }
   },
   actions: {
@@ -77,6 +87,7 @@ export const useCourseStore = defineStore('course', {
         name: this.course?.name,
         detail: this.course?.detail,
         live: this.course?.live,
+        shortDesc: this.course?.shortDesc,
       })
         .eq('id', this.course?.id)
         .select().single();
@@ -111,11 +122,12 @@ export const useCourseStore = defineStore('course', {
         main_key: null,
         owner: null,
         updated_at: null,
+        shortDesc: "",
       } as Course;
     },
     async pullCourseList(searchText: string) {
       const { data: courses, error } = await supabase.from('courses').select(`
-        id, name, detail,
+        id, name, shortDesc, image,
         owner ( id, full_name )
       `).ilike("name", `%${searchText}%`);
       if (courses) {
@@ -140,19 +152,22 @@ export const useCourseStore = defineStore('course', {
         const my = this;
         return units.filter((unit) => {
           const isLive = unit.live ? unit.live : false;
-          return isLive || my.course?.owner?.id == userStore.user.id;
+          console.log('unit', unit);
+          return true || isLive || my.course?.owner?.id == userStore.user.id;
         });
       }
     },
     async load(id: number) {
-      const { data: course, error } = await supabase.from('courses').select(`
-        id, name, detail, live, image,
-        units ( id, name, live, image ),
+      const { data: course, error: courseError } = await supabase.from('courses').select(`
+        id, name, detail, live, image, shortDesc,
+        units ( id, name, live, image, shortDesc ),
         owner ( id, full_name )
         `).eq('id', id).single();
       // @ts-ignore
-      if (course) this.course = course
-      if (error) console.log(error);
+      if (course) {
+        this.course = course;
+      }
+      if (courseError) console.log(courseError);
     },
     async import() {
       // stuff

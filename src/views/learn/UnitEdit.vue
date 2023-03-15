@@ -67,6 +67,18 @@ const viewLesson = (targetLesson: Unit | { id: string }, action?: string) => {
       <label for="unitName">Name</label>
       <div id="unitNameHelp" class="form-text">The unit name needs to be unique on the course.</div>
     </div>
+    <div class="form-floating mb-3">
+      <input placeholder="new unit image" v-model="unitStore.unit.image" type="text" class="form-control" id="unitImage"
+        aria-describedby="unitImageHelp">
+      <label for="unitImage">Image File Name</label>
+      <div id="unitImageHelp" class="form-text">The unit image filename.</div>
+    </div>
+    <div class="form-floating mb-3">
+      <input placeholder="short description" v-model="unitStore.unit.shortDesc" type="text" class="form-control"
+        id="unitShortDesc" aria-describedby="unitShortDescHelp">
+      <label for="unitShortDesc">Short Description</label>
+      <div id="unitShortDescHelp" class="form-text">The unit short description.</div>
+    </div>
     <div class="form-floating">
       <textarea v-model="unitStore.unit.content" class="form-control" placeholder="Enter unit detail here"
         id="unitContent" style="height: 100px"></textarea>
@@ -84,7 +96,7 @@ const viewLesson = (targetLesson: Unit | { id: string }, action?: string) => {
   <hr>
   <div v-for="lesson in unitStore.unit?.lessons" :key="lesson.id">
     <h2>{{ lesson.name }}</h2>
-    <p>Details</p>
+    <p>{{ lesson.shortDesc }}</p>
     <button @click="viewLesson(lesson)" class="btn btn-primary">View Lesson</button>
   </div>
   <button @click="editLesson({ id: '0' }, 'add')" class="btn btn-primary">Add Lesson</button>

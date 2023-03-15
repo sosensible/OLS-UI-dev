@@ -4,6 +4,8 @@ import { useCourseStore, type Course } from '@/stores/learn/course';
 import { onActivated, onMounted, ref } from 'vue';
 import { useUserStore } from '@/stores/user';
 
+import OLSCard from '@/components/ols/OLSCard.vue';
+
 const searchText = ref("");
 const courseStore = useCourseStore();
 const courses = courseStore.courses;
@@ -30,7 +32,16 @@ const editCourse = (targetCourse: Course | { id: string }, action: string) =>
 const viewCourse = (targetCourse: Course | { id: string }) =>
   router.push({ name: 'olsCourse', params: { id: targetCourse.id } });
 
+const myImage = (id: Number, imageName: String) => {
+  if (imageName.length) {
+    return '/course/' + id + '/img/' + imageName;
+  }
+  return '';
+}
+
 const updateCourses = () => courseStore.pullCourseList(searchText.value)
+
+const checkOwner = (id: String) => userStore.user.id == id ? true : false; 
 </script>
 
 <template>
@@ -46,23 +57,18 @@ const updateCourses = () => courseStore.pullCourseList(searchText.value)
       <div v-if="!courses.length" class="text-center text-warning">No courses matching search.</div>
       <button @click="editCourse({ id: 0 }, 'add')" class="btn btn-primary" v-if="userStore.user.id">Add Course</button>
     </div>
+
     <div class="row pl-3 mr-3">
       <div v-for="course in courses" :key="course.id" class="col-sm-6 mb-3 mb-sm-0">
-        <div class="card mb-3">
-          <div class="card-header">
-            <h2>{{ course.name }}</h2>
-          </div>
-          <div class="card-body">
-            <p>{{ course.detail }}</p>
+        <OLSCard :header="course.name" :image="myImage(course.id, course.image)">
+          {{ course.shortDesc }}
+          <template v-slot:footer>
             <button @click="viewCourse(course)" class="btn btn-primary">View Course</button>
             &nbsp;
-            <button @click="editCourse(course, 'edit')" class="btn btn-primary"
-              v-if="userStore.user.id === course.owner.id">Edit Course</button>
-          </div>
-          <div class="card-footer text-muted">
-            <p>by {{ course.owner.full_name }}</p>
-          </div>
-        </div>
+            <button @click="editCourse(course, 'edit')" class="btn btn-primary" v-if="checkOwner(course.owner?.id)">Edit
+              Course</button>
+          </template>
+        </OLSCard>
       </div>
     </div>
   </div>

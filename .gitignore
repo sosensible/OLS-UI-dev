@@ -18,7 +18,7 @@ coverage
 /cypress/screenshots/
 
 # Course builder hidden files
-/public/img
+/public/Course
 
 # Editor directories and files
 .vscode/*

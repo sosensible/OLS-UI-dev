@@ -4,10 +4,13 @@ import { supabase } from '../../supabase'
 import { useUserStore } from '../user';
 
 export type Lesson = Database['public']['Tables']['lessons']['Row']
+export type LessonContent = Database['public']['Tables']['lesson_content']['Row']
 
 interface LessonState {
   lesson: Lesson | null;
   lessons: Lesson[];
+  lesson_content: LessonContent[];
+  content_id: number;
   unitID: number | null;
   unitName: string;
   courseID: number | null;
@@ -23,7 +26,7 @@ export const useLessonStore = defineStore('lesson', {
       created_at: null,
       id: 0,
       name: "",
-      content: "",
+      shortDesc: "",
       live: false,
       main_key: null,
       order: 0,
@@ -33,6 +36,8 @@ export const useLessonStore = defineStore('lesson', {
       updated_at: null,
     },
     lessons: [],
+    lesson_content: [],
+    content_id: 0,
     unitID: null,
     unitName: "",
     courseID: null,
@@ -67,22 +72,6 @@ export const useLessonStore = defineStore('lesson', {
     }
   },
   actions: {
-    async addLesson() {
-      const newLesson: Lesson = {
-        created_at: null,
-        id: 11,
-        name: "CC 4",
-        content: "After Learning CC",
-        live: false,
-        order: 0,
-        tag: [],
-        main_key: null,
-        type: null,
-        unit: null,
-        updated_at: null,
-      };
-      this.lessons.push(newLesson);
-    },
     async insertLesson(unitID: number): Promise<number> {
       console.log('unit insertLesson run');
       const { data: lesson, error } = await supabase.from('lessons').insert({
@@ -125,7 +114,14 @@ export const useLessonStore = defineStore('lesson', {
       if (error) alert(error.details);
     },
     addLessonContentSection() {
-      // todo
+      const newContent = {
+        "id": --this.content_id,
+        "alt_name": "Rename" + this.content_id,
+        "content": "",
+        "type": "markdown",
+        "tags": null
+      };
+      this.lesson_content.push(newContent);
     },
     async deleteLessonContent(lessonContent) {
       const { data, error } = await supabase.from('lesson-content').delete().eq('id', this.lesson.id);
@@ -148,6 +144,7 @@ export const useLessonStore = defineStore('lesson', {
         type: "",
         unit: 0,
         updated_at: null,
+        shortDesc: "",
       } as Lesson;
     },
     async pullLessonList(searchText: string) {
@@ -169,7 +166,7 @@ export const useLessonStore = defineStore('lesson', {
     async load(id: number) {
       this.activeLessonContent = 0;
       const { data: lesson, error } = await supabase.from('lessons').select(`
-        id, name, content, live,
+        id, name, shortDesc, live,
         lesson_content( id, alt_name, content, type, tags ),
         units( id, name, courses ( id, name, owner ))
         `).eq('id', id).single();
@@ -181,6 +178,7 @@ export const useLessonStore = defineStore('lesson', {
         this.courseOwner = lesson.units.courses.owner;
         delete lesson.units;
         this.lesson = lesson;
+        this.lesson_content = lesson.lesson_content;
         if (lesson?.lesson_content?.length) this.activeLessonContent = lesson.lesson_content[0].id;
       }
       if (error) console.log(error);

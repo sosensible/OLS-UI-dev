@@ -6,6 +6,8 @@ import { useUserStore } from '@/stores/user';
 import Markdown from 'vue3-markdown-it';
 import { computed } from 'vue';
 
+import OLSCard from '@/components/ols/OLSCard.vue';
+
 const props = defineProps({
   id: String,
 });
@@ -36,11 +38,18 @@ const deleteCourse = () => {
   router.push({ name: 'olsMain' });
 }
 
-const isOwner = computed(() => {
-  const userIDSet = userStore.user?.id ? true : false;
-  const courseOwnerSet = courseStore.course?.owner?.id ? true : false;
-  return userIDSet && courseOwnerSet && courseStore.course?.owner?.id == userStore.user.id;
-});
+// const isOwner = computed(() => {
+//   const userIDSet = userStore.user?.id ? true : false;
+//   const courseOwnerSet = courseStore.course?.owner?.id ? true : false;
+//   return userIDSet && courseOwnerSet && courseStore.course?.owner?.id == userStore.user.id;
+// });
+
+const myImage = (id: Number, imageName: String) => {
+  if (imageName.length) {
+    return '/course/' + id + '/img/' + imageName;
+  }
+  return '';
+}
 </script>
 
 <template>
@@ -55,43 +64,40 @@ const isOwner = computed(() => {
   <h1>{{ courseStore.course.name }}</h1>
   <p>
     by: {{ courseStore.course?.owner?.full_name }}<br />
-    <span v-if="isOwner">Status: {{ courseStore.course?.live ? "live" : "draft" }}<br /></span>
+    <span v-if="courseStore.isOwner">Status: {{ courseStore.course?.live ? "live" : "draft" }}<br /></span>
   </p>
   <p>
     <Markdown :source="courseStore.course.detail" class="markdown" />
   </p>
 
   <div class="p-2">
-    <button @click="editCourse(courseStore.course, 'edit')" class="btn btn-primary" v-if="isOwner">Edit Course</button>
+    <button @click="editCourse(courseStore.course, 'edit')" class="btn btn-primary" v-if="courseStore.isOwner">Edit
+      Course</button>
     &nbsp;
-    <button @click="deleteCourse()" class="btn btn-primary" v-if="isOwner">Delete
+    <button @click="deleteCourse()" class="btn btn-primary" v-if="courseStore.isOwner">Delete
       Course</button>
   </div>
-  <hr>
-  <h2>Units</h2>
-  <div class="row pl-3 mr-3">
-    <div v-for="unit in courseStore.activeUnitList()" :key="unit.id" class="col-sm-6 mb-3 mb-sm-0"
-      xv-if="isOwner || unit.live">
-      <div class="card mb-3">
-        <div class="card-header">
-          <h2>{{ unit.name }}...{{ unit.live }}</h2>
+  <div>
+    <hr>
+    <h2>Units</h2>
+    <div class="row pl-3 mr-3">
+      <template v-for="unit in courseStore.activeUnitList()" :key="unit.id">
+        <div class="col-sm-6 mb-3 mb-sm-0">
+          <OLSCard :header="unit.name" :image="myImage(courseStore.course?.id, unit.image)">
+            {{ unit.shortDesc }}
+            <template v-slot:footer>
+              <button @click="viewUnit(unit)" class="btn btn-primary">View Unit</button>
+              &nbsp;
+              <button @click="editUnit(unit, 'edit')" class="btn btn-primary" v-if="courseStore.isOwner">Edit
+                Unit</button>
+            </template>
+          </OLSCard>
         </div>
-        <div class="card-body">
-          <div>
-            <img :src="'/img/' + courseStore.course?.id + '/' + unit.image" class="promo-img">
-          </div>
-          <p>Details...</p>
-        </div>
-        <div class="card-footer">
-          <button @click="viewUnit(unit)" class="btn btn-primary">View Unit</button>
-          &nbsp;
-          <button @click="editUnit(unit, 'edit')" class="btn btn-primary" v-if="isOwner">Edit Unit</button>
-        </div>
-      </div>
+      </template>
     </div>
   </div>
   <br />
-  <button @click="editUnit({ id: 0 }, 'add')" class="btn btn-primary" v-if="isOwner">Add Unit</button>
+  <button @click="editUnit({ id: 0 }, 'add')" class="btn btn-primary" v-if="courseStore.isOwner">Add Unit</button>
 </template>
 
 <style>
