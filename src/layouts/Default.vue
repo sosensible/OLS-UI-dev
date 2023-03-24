@@ -8,9 +8,18 @@ const loggedIn = ref(false);
 const session = ref();
 const userStore = useUserStore();
 const user = userStore.user;
+const darkMode = ref(false);
 
 onMounted(() => {
   // console.log('mounted');
+  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    darkMode.value = true;
+    toggleTheme();
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+      darkMode.value = event.matches ? true : false;
+      toggleTheme();
+    });
+  }
 });
 
 const profile_image = computed(() => {
@@ -26,7 +35,7 @@ const profile_image = computed(() => {
 const toggleTheme = () => {
   let theme = document.querySelector('html');
   // @ts-ignore
-  theme.dataset.bsTheme = theme.dataset.bsTheme === 'dark' ? 'light' : 'dark';
+  theme.dataset.bsTheme = darkMode.value ? 'dark' : 'light';
 }
 
 const logSession = async () => {
@@ -71,7 +80,7 @@ const logSession = async () => {
             <li><a class="dropdown-item" href="#">New course...</a></li>
             <li><a class="dropdown-item" href="#" @click="logSession()">Settings</a></li>
             <li><a class="dropdown-item" href="#">Profile</a></li>
-            <li><a class="dropdown-item" href="#" @click="toggleTheme">Toggle Dark Mode</a></li>
+            <li><a class="dropdown-item" href="#" @click="toggleTheme">Toggle Dark Mode({{ darkMode }})</a></li>
             <li>
               <hr class="dropdown-divider">
             </li>
