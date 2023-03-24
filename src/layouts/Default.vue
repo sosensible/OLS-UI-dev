@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useUserStore } from '@/stores/user';
-import { onMounted, ref } from "vue";
-import { supabase } from "../supabase";
+import { onMounted, ref, computed } from "vue";
+import md5 from 'md5';
 import 'mosha-vue-toastify/dist/style.css'
 
 const loggedIn = ref(false);
@@ -12,6 +12,22 @@ const user = userStore.user;
 onMounted(() => {
   // console.log('mounted');
 });
+
+const profile_image = computed(() => {
+  if (userStore.user.email.length) {
+    return `https://www.gravatar.com/avatar/${md5(userStore.user.email)}`;
+    // return `https://www.gravatar.com/avatar/${userStore.user.email}?d=https://localhost:5173/profile.png`;
+  } else {
+    return `http://localhost:5173/profile.png`;
+  }
+
+});
+
+const toggleTheme = () => {
+  let theme = document.querySelector('html');
+  // @ts-ignore
+  theme.dataset.bsTheme = theme.dataset.bsTheme === 'dark' ? 'light' : 'dark';
+}
 
 const logSession = async () => {
   // const s = await console.log(userStore.getSession())
@@ -49,12 +65,13 @@ const logSession = async () => {
         <div class="text-end ms-2">
           <a data-test="user-avatar" href="#" class="d-block link-dark text-decoration-none dropdown-toggle"
             data-bs-toggle="dropdown" aria-expanded="false">
-            <img src="https://github.com/mdo.png" alt="mdo" title="odm" width="32" height="32" class="rounded-circle">
+            <img :src="profile_image" alt="user avatar" title="User Avatar" width="32" height="32" class="rounded-circle">
           </a>
           <ul data-test="user-menu" class="dropdown-menu text-small">
             <li><a class="dropdown-item" href="#">New course...</a></li>
             <li><a class="dropdown-item" href="#" @click="logSession()">Settings</a></li>
             <li><a class="dropdown-item" href="#">Profile</a></li>
+            <li><a class="dropdown-item" href="#" @click="toggleTheme">Toggle Dark Mode</a></li>
             <li>
               <hr class="dropdown-divider">
             </li>

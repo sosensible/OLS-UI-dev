@@ -1,13 +1,13 @@
 import type { Database } from "./schema";
 import User from '@supabase/supabase-js';
-export interface ols extends Database {
+export interface OLS2 extends Database {
   course: {
-    units: Database['public']['Tables']['unit']['Row'][]
+    units: Database['public']['Tables']['units']['Row'][]
   }
 }
 
-const course: Database['public']['Tables']['course']['Row'];
-const courses: Database['public']['Tables']['course']['Row'][];
+// const course: Database['public']['Tables']['courses']['Row'];
+// const courses: Database['public']['Tables']['courses']['Row'][];
 
 // interface myCourse {
 //   id: Database.pu

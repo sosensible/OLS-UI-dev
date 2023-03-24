@@ -11,6 +11,7 @@ interface CourseState {
   courses: Course[];
   listPulledAt: Date | null;
   lastUserChange: Date | null;
+  eventBus: Object | null;
 }
 
 const flipTrue = (oldBool: boolean, newBool: boolean) => {
@@ -36,6 +37,7 @@ export const useCourseStore = defineStore('course', {
     courses: [],
     listPulledAt: new Date(),
     lastUserChange: null,
+    eventBus: null,
   }),
   getters: {
     getCourseList(state) {

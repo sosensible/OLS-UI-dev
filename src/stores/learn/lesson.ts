@@ -1,16 +1,16 @@
 import type { Database } from '../../types/schema'
+import type { OLS } from '../../types/ols'
 import { defineStore, acceptHMRUpdate } from 'pinia';
 import { supabase } from '../../supabase'
 import { useUserStore } from '../user';
 
-export type Lesson = Database['public']['Tables']['lessons']['Row']
-export type LessonContent = Database['public']['Tables']['lesson_content']['Row']
 export type LessonContentInsert = Database['public']['Tables']['lesson_content']['Insert']
 
 interface LessonState {
-  lesson: Lesson | null;
-  lessons: Lesson[];
-  lesson_content: LessonContent[];
+  lesson: OLS['Store']['Lesson'] | null;
+  lessons: OLS['Store']['Lesson'][];
+  lesson_content: OLS['Store']['LessonContent'][];
+  lesson_comments: Object[];
   content_id: number;
   unitID: number | null;
   unitName: string;
@@ -35,9 +35,11 @@ export const useLessonStore = defineStore('lesson', {
       unit: 0,
       type: null,
       updated_at: null,
+      lesson_content: []
     },
     lessons: [],
     lesson_content: [],
+    lesson_comments: [],
     content_id: 0,
     unitID: null,
     unitName: "",
@@ -75,7 +77,14 @@ export const useLessonStore = defineStore('lesson', {
         item = state.lesson.lesson_content.find(o => o.id === state.activeLessonContent);
       }
       return item?.type ? item?.type : "";
-      return 'markdown';
+    },
+    getActiveContent(state): Object {
+      let item: LessonContentInsert = {};
+      if (state.lesson_content?.length) {
+        // @ts-ignore
+        item = state.lesson_content.find(o => o.id === state.activeLessonContent);
+      }
+      return item;
     }
   },
   actions: {
@@ -159,6 +168,7 @@ export const useLessonStore = defineStore('lesson', {
       if (data) {
         this.newLesson();
         this.lessons.length = 0;
+        this.lesson_comments.length = 0;
       }
       if (error) alert(error.details);
     },
@@ -189,6 +199,7 @@ export const useLessonStore = defineStore('lesson', {
         shortDesc: "",
       } as Lesson;
       this.lesson_content.length = 0;
+      this.lesson_comments.length = 0;
     },
     async pullLessonList(searchText: string) {
       const { data: lessons, error } = await supabase.from('lessons').select().ilike("name", `%${searchText}%`);
@@ -208,6 +219,7 @@ export const useLessonStore = defineStore('lesson', {
     },
     async load(id: number) {
       this.activeLessonContent = 0;
+      this.lesson_comments.length = 0;
       const { data: lesson, error } = await supabase.from('lessons').select(`
         id, name, shortDesc, live,
         lesson_content( id, alt_name, content, type, tags ),

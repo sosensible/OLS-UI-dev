@@ -14,6 +14,7 @@ interface UserState {
   user: olsUser;
   isLoading: boolean;
   error: string | null;
+  eventBus: Object | null;
 }
 
 const get_blank_user = (): olsUser => {
@@ -31,7 +32,8 @@ export const useUserStore = defineStore('user', {
     // @ts-ignore
     user: useStorage('ols_user', get_blank_user()),
     isLoading: false,
-    error: null
+    error: null,
+    eventBus: null
   }),
   getters: {
     getError: (state) => state.error,

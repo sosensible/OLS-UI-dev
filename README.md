@@ -132,3 +132,14 @@ supabase db reset
 ```
 NOTE: You can change configuration using the /supabase/config.toml file.
 NOTE: You can access the email via the port in the conf. since it does actuall get sent.
+
+TODO: consider using [TipTap](https://tiptap.dev/installation/vue3) for the Vue Editor vs [Markdown-it](https://markdown-it.github.io/)
+
+TODO: consider adding an event bus: https://github.com/bcerati/js-event-bus ( perhaps create a composition like VueUse style)
+
+* https://pinia.vuejs.org/core-concepts/plugins.html
+* Integrate user to login via router code. https://pinia.vuejs.org/core-concepts/plugins.html (navigation guard)
+
+TODO: create Supabase composeables (https://vueuse.org/firebase/README.html)
+
+TODO: create better reactive async states for Pinia. ( https://vueuse.org/core/useAsyncState/ )
