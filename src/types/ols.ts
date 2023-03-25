@@ -1,5 +1,7 @@
 import type { Database } from "./schema";
 
+type Comment = Database['public']['Tables']['comments']['Row']
+
 type LessonContent = Database['public']['Tables']['lesson_content']['Row']
 
 type Lesson = Database['public']['Tables']['lessons']['Row'] & {
@@ -22,18 +24,21 @@ type Course = Database['public']['Tables']['courses']['Row'] & {
 
 export interface OLS {
   Store: {
+    Comment: Comment,
     Course: Course,
     Unit: Unit,
     Lesson: Lesson,
     LessonContent: LessonContent,
   },
   StoreInsert: {
+    Comment: Database['public']['Tables']['comments']['Insert'],
     Course: Database['public']['Tables']['courses']['Insert'],
     Unit: Database['public']['Tables']['courses']['Insert'],
     Lesson: Database['public']['Tables']['courses']['Insert'],
     LessonContent: Database['public']['Tables']['courses']['Insert'],
   },
   StoreUpdate: {
+    Comment: Database['public']['Tables']['comments']['Update'],
     Course: Database['public']['Tables']['courses']['Update'],
     Unit: Database['public']['Tables']['courses']['Update'],
     Lesson: Database['public']['Tables']['courses']['Update'],

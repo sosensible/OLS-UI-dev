@@ -34,6 +34,44 @@ export interface Database {
   }
   public: {
     Tables: {
+      comments: {
+        Row: {
+          archived: boolean | null
+          commentor: string | null
+          content_type: string
+          course: number | null
+          created_at: string | null
+          detail: string | null
+          id: number
+          position: number | null
+          target_id: number
+          target_type: string
+        }
+        Insert: {
+          archived?: boolean | null
+          commentor?: string | null
+          content_type: string
+          course?: number | null
+          created_at?: string | null
+          detail?: string | null
+          id?: number
+          position?: number | null
+          target_id: number
+          target_type: string
+        }
+        Update: {
+          archived?: boolean | null
+          commentor?: string | null
+          content_type?: string
+          course?: number | null
+          created_at?: string | null
+          detail?: string | null
+          id?: number
+          position?: number | null
+          target_id?: number
+          target_type?: string
+        }
+      }
       courses: {
         Row: {
           created_at: string | null

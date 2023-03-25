@@ -4,10 +4,7 @@ import { onMounted, ref, computed } from "vue";
 import md5 from 'md5';
 import 'mosha-vue-toastify/dist/style.css'
 
-const loggedIn = ref(false);
-const session = ref();
 const userStore = useUserStore();
-const user = userStore.user;
 const darkMode = ref(false);
 
 onMounted(() => {
@@ -36,6 +33,10 @@ const toggleTheme = () => {
   let theme = document.querySelector('html');
   // @ts-ignore
   theme.dataset.bsTheme = darkMode.value ? 'dark' : 'light';
+}
+
+const goGuest = () => {
+  userStore.makeGuest();
 }
 
 const logSession = async () => {
@@ -81,6 +82,7 @@ const logSession = async () => {
             <li><a class="dropdown-item" href="#" @click="logSession()">Settings</a></li>
             <li><a class="dropdown-item" href="#">Profile</a></li>
             <li><a class="dropdown-item" href="#" @click="toggleTheme">Toggle Dark Mode({{ darkMode }})</a></li>
+            <li><a class="dropdown-item" href="#" @click="goGuest">Go Guest Mode</a></li>
             <li>
               <hr class="dropdown-divider">
             </li>

@@ -1,16 +1,13 @@
-import type { Database } from '../../types/schema'
 import type { OLS } from '../../types/ols'
 import { defineStore, acceptHMRUpdate } from 'pinia';
 import { supabase } from '../../supabase'
 import { useUserStore } from '../user';
 
-export type LessonContentInsert = Database['public']['Tables']['lesson_content']['Insert']
-
 interface LessonState {
   lesson: OLS['Store']['Lesson'] | null;
   lessons: OLS['Store']['Lesson'][];
   lesson_content: OLS['Store']['LessonContent'][];
-  lesson_comments: Object[];
+  lesson_comments: OLS['Store']['Comment'][];
   content_id: number;
   unitID: number | null;
   unitName: string;
@@ -79,12 +76,16 @@ export const useLessonStore = defineStore('lesson', {
       return item?.type ? item?.type : "";
     },
     getActiveContent(state): Object {
-      let item: LessonContentInsert = {};
+      let item: OLS['Store']['LessonContent'] | {} = {};
       if (state.lesson_content?.length) {
         // @ts-ignore
         item = state.lesson_content.find(o => o.id === state.activeLessonContent);
       }
       return item;
+    },
+    getActiveComments(state): OLS['Store']['Comment'][] {
+      // @ts-ignore
+      return state.lesson_comments.filter(comment => comment.target_id === state.getActiveContent.id);
     }
   },
   actions: {
@@ -124,15 +125,13 @@ export const useLessonStore = defineStore('lesson', {
     async storeLessonContent() {
       this.lesson_content.forEach((lc) => {
         if (lc.id > 0) {
-          alert('update item id ' + lc.alt_name);
           this.updateLessonContent(lc);
         } else {
-          alert('insert item ' + lc.alt_name);
           this.insertLessonContent(lc);
         }
       });
     },
-    async insertLessonContent(lc: LessonContentInsert) {
+    async insertLessonContent(lc: OLS['StoreInsert']['LessonContent']) {
       console.log('inserting lesson content');
       const { data: lesson_content, error } = await supabase.from('lesson_content').insert({
         alt_name: lc.alt_name,
@@ -218,6 +217,7 @@ export const useLessonStore = defineStore('lesson', {
       this.lesson?.id
     },
     async load(id: number) {
+      const userStore = useUserStore();
       this.activeLessonContent = 0;
       this.lesson_comments.length = 0;
       const { data: lesson, error } = await supabase.from('lessons').select(`
@@ -234,7 +234,24 @@ export const useLessonStore = defineStore('lesson', {
         delete lesson.units;
         this.lesson = lesson;
         this.lesson_content = lesson.lesson_content;
-        if (lesson?.lesson_content?.length) this.activeLessonContent = lesson.lesson_content[0].id;
+        if (lesson?.lesson_content?.length) {
+          this.activeLessonContent = lesson.lesson_content[0].id;
+          const { data: comments, error: c_error } = await supabase.from('comments').select(`
+            *
+          `)
+            .eq('course', this.courseID)
+            .eq('commentor', userStore.user.id)
+            .eq('target_type', 'lesson_content')
+            .in('target_id', lesson.lesson_content.map(lc => lc.id));
+          if (comments) {
+            this.lesson_comments.length = 0;
+            comments.forEach((comment) => {
+              console.log('comment', comment);
+              this.lesson_comments.push(comment);
+            })
+          }
+          if (c_error) console.log(c_error);
+        }
       }
       if (error) console.log(error);
     },
@@ -242,6 +259,36 @@ export const useLessonStore = defineStore('lesson', {
       // stuff
     },
     async export() {
+      // stuff
+    },
+    // lesson content comment handlers
+    async loadComments() {
+      // refactor out of load lesson
+    },
+    async deleteComment(xcomment: OLS['Store']['Comment']) {
+      const removeID = this.lesson_comments.findIndex((comment) => comment.id === xcomment.id);
+      if (removeID > -1) this.lesson_comments.splice(removeID, 1);
+      const { error } = await supabase.from('comments').delete().eq('id', xcomment.id);
+      if (error) console.log(error);
+    },
+    async saveComment(newComment: OLS['StoreInsert']['Comment']): Promise<number> {
+      const userStore = useUserStore();
+      const { data: comment, error } = await supabase.from('comments').insert({
+        commentor: userStore.user?.id,
+        course: newComment.course,
+        content_type: newComment.content_type,
+        detail: newComment.detail,
+        position: newComment.position,
+        target_id: newComment.target_id,
+        target_type: 'lesson_content',
+      }).select().single();
+      if (comment) {
+        newComment.id = comment.id;
+      }
+      if (error) { console.log(error) }
+      return newComment.id ? newComment.id : 0;
+    },
+    async exportComments() {
       // stuff
     }
   }

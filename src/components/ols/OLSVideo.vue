@@ -49,16 +49,15 @@ const {
 
 const addComment = () => {
   if (playing._value) playButton.value.click();
-  const newComment: OLS['shared']['comment'] = {
-    id: null,
-    comment_target_id: lessonStore.getActiveContent?.id,
+  const newComment: OLS['StoreInsert']['Comment'] = {
+    id: -1,
     commentor: userStore.user.id,
-    comment_time: Date(), // todo: needs to align with data server time, not client instance
+    course: lessonStore.courseID,
+    content_type: "video",
     detail: "",
     position: currentTime._value,
-    target_type: "lesson_content",
-    content_type: "video",
-    edit: true
+    target_id: lessonStore.getActiveContent?.id,
+    target_type: "lesson_content"
   }
   lessonStore.lesson_comments.push(newComment);
   commentButton.value.click();
@@ -83,6 +82,6 @@ const showPosition = (targetPosition) => {
     </button>
 
     <OLSCommentor ref="commentor" :show="showModal" :comments="lessonStore.lesson_comments"
-      @setVideoPosition="showPosition" />
+      @setVideoPosition="showPosition" :comment-handler="lessonStore" :target_id="lessonStore.getActiveContent.id" />
   </div>
 </template>

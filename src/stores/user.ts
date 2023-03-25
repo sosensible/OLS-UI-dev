@@ -1,5 +1,6 @@
 // import type { Session, User } from '@supabase/supabase-js'
-import { useStorage } from '@vueuse/core'
+import { unref } from 'vue';
+import { useStorage, useTimeoutFn, type RemovableRef, type Stoppable } from '@vueuse/core';
 import { defineStore, acceptHMRUpdate } from 'pinia'
 import { supabase } from "../supabase";
 import { createToast } from "mosha-vue-toastify";
@@ -10,11 +11,19 @@ interface olsUser {
   id: string | null,
   changedLoginAt: Date
 }
+interface olsSession {
+  expires_at: Number,
+  expires_in: Number,
+  refresh_token: String,
+  token_type: String
+}
 interface UserState {
-  user: olsUser;
+  user: olsUser | RemovableRef<olsUser>;
+  session: olsSession | RemovableRef<olsSession>,
   isLoading: boolean;
   error: string | null;
   eventBus: Object | null;
+  sessionMgr: Stoppable | null;
 }
 
 const get_blank_user = (): olsUser => {
@@ -27,13 +36,27 @@ const get_blank_user = (): olsUser => {
   }
 }
 
+const get_blank_session = (): olsSession => {
+  return {
+    expires_at: 0,
+    expires_in: 0,
+    refresh_token: '',
+    token_type: ''
+  }
+}
+
+
+
+
+
 export const useUserStore = defineStore('user', {
   state: (): UserState => ({
-    // @ts-ignore
     user: useStorage('ols_user', get_blank_user()),
+    session: useStorage('ols_session', get_blank_session()),
     isLoading: false,
     error: null,
-    eventBus: null
+    eventBus: null,
+    sessionMgr: null,
   }),
   getters: {
     getError: (state) => state.error,
@@ -49,6 +72,19 @@ export const useUserStore = defineStore('user', {
           password: password,
         });
         if (user) this.user = { email: user.email, id: user.id } as olsUser
+        if (session) {
+          console.log('session', session)
+          this.session = {
+            expires_at: session.expires_at ?? 0,
+            expires_in: session.expires_in,
+            refresh_token: session.refresh_token,
+            token_type: session.token_type
+          }
+          const start = unref(this.session.expires_at);
+          const sessionMgr = useTimeoutFn(() => {
+            if (start === this.session.expires_at) this.makeGuest()
+          }, (session.expires_in) * 1000);
+        }
         if (error) {
           this.error = error.message;
           createToast(this.error, {
@@ -57,7 +93,7 @@ export const useUserStore = defineStore('user', {
             type: "danger",
             transition: "slide",
           });
-          this.user = get_blank_user()
+          this.makeGuest()
         }
         createToast("You are now logged in.", {
           showIcon: true,
@@ -79,11 +115,20 @@ export const useUserStore = defineStore('user', {
         this.user.changedLoginAt = new Date()
       }
     },
+    makeGuest() {
+      this.user = get_blank_user()
+      this.session = get_blank_session()
+      try {
+        this.sessionMgr?.stop()
+      } catch (err) {
+        console.log(err)
+      }
+    },
     async logout() {
       try {
         await supabase.auth.signOut();
         // @ts-ignore
-        this.user = get_blank_user()
+        this.makeGuest();
         createToast("Logged out successfully!", {
           showIcon: true,
           position: "top-center",
@@ -105,7 +150,7 @@ export const useUserStore = defineStore('user', {
     async refreshSession() {
       const { data, error } = await supabase.auth.getUser();
       if (!data.user?.id) {
-        this.user = get_blank_user();
+        this.makeGuest();
       }
       if (error) console.log(error);
     }

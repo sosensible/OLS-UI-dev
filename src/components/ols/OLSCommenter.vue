@@ -1,17 +1,28 @@
 <script setup lang="ts">
 import type { OLS } from "../../types/ols";
 
-const { comments } = defineProps<{
-  comments: OLS['shared']['comment'][]
+const { comments, commentHandler, target_id } = defineProps<{
+  comments: OLS['Store']['Comment'][],
+  target_id: Number,
+  commentHandler: any,
 }>()
 
-const removeComment = (index) => {
-  comments.splice(index, 1);
+const removeComment = (xcomment) => {
+  // console.log('extract', extract)
+  // console.log('comments', comments)
+  commentHandler.deleteComment(xcomment);
+  // const removeID = comments.findIndex(comment => comment.id === extract.id);
+  // console.log('removeID', removeID)
+  // commentHandler.deleteComment(removeID);
+  // if (removeID > -1) comments.splice(removeID, 1);
 }
 
 const close = () => {
   comments.forEach((comment) => {
-    comment.edit = false;
+    if (comment.id < 0) {
+      comment.id = 0;
+      commentHandler.saveComment(comment);
+    }
   });
 }
 </script>
@@ -28,14 +39,14 @@ const close = () => {
         </div>
         <div class="modal-body">
           <div v-for="( comment, index ) in comments" class="row">
-            <div class="input-group mb-3">
+            <div class="input-group mb-3" v-if="comment.target_id === target_id">
               <div class="input-group-text" v-if="false">
                 <input class="form-check-input mt-0" type="checkbox" :value="0"
                   aria-label="Checkbox for following text input">
               </div>
-              <button type="button" class="btn btn-danger" @click="removeComment(index)">x</button>
+              <button type="button" class="btn btn-danger" @click="removeComment(comment)">x</button>
               <input type="text" class="form-control" aria-label="Text input with checkbox" v-model="comment.detail"
-                :disabled="!comment.edit">
+                :disabled="comment.id >= 0">
               <button type="button" class="btn btn-primary" @click="$emit('setVideoPosition', comment.position)"
                 v-if="comment.content_type === 'video'">⏵</button>
             </div>
